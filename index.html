@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>PrintOkiyo — Product Management Console</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Announcement / Status Bar -->
+  <div class="status-bar">
+    <div class="status-indicator">
+      <span class="status-dot green"></span>
+      <span id="api-status-text">Connecting to production API...</span>
+    </div>
+    <div class="status-actions">
+      <span class="currency-badge">INR (₹) Mode</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="logo.png" alt="PrintOkiyo" style="height: 47px; width: auto; object-fit: contain;" />
+      </div>
+      <span class="badge">Console</span>
+    </div>
+    <div id="admin-user-header" class="hidden" style="display: flex; align-items: center; gap: 12px;">
+      <span id="admin-user-name" style="font-size: 11px; font-weight: 700; color: var(--text-main);">Admin</span>
+      <button id="btn-admin-logout" class="btn-secondary" style="padding: 6px 12px; font-size: 11px;">
+        Log Out
+      </button>
+    </div>
+  </header>
+
+  <!-- Admin Login Screen Guard Overlay -->
+  <div id="admin-login-modal" class="admin-login-modal">
+    <div class="admin-login-card">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px;">
+        <img src="logo.png" alt="PrintOkiyo" style="height: 48px; width: auto; object-fit: contain;" />
+      </div>
+
+      <h2 style="font-family: var(--display); font-size: 18px; font-weight: 800; color: #111111; margin-bottom: 4px; text-align: center;">Admin Portal Login</h2>
+      <p style="font-size: 11.5px; color: #666666; margin-bottom: 20px; line-height: 1.4; text-align: center;">
+        Enter your store admin credentials stored in MongoDB to access management controls.
+      </p>
+
+      <form id="admin-login-form" style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="text-align: left;">
+          <label for="admin-login-id" style="font-size: 11px; font-weight: 700; color: #333333; display: block; margin-bottom: 4px;">Admin Email or Mobile *</label>
+          <input type="text" id="admin-login-id" required placeholder="admin@printokiyo.com" style="width: 100%; padding: 10px 12px; font-size: 12px; border: 1px solid #cccccc; border-radius: 8px;">
+        </div>
+
+        <div style="text-align: left;">
+          <label for="admin-password" style="font-size: 11px; font-weight: 700; color: #333333; display: block; margin-bottom: 4px;">Password *</label>
+          <input type="password" id="admin-password" required placeholder="••••••••••••" style="width: 100%; padding: 10px 12px; font-size: 12px; border: 1px solid #cccccc; border-radius: 8px;">
+        </div>
+
+        <div id="admin-login-error" style="display: none; font-size: 11px; color: #dc2626; background: #fee2e2; padding: 8px 12px; border-radius: 6px; font-weight: 600; text-align: left;"></div>
+
+        <button type="submit" id="btn-admin-login" class="btn-primary" style="width: 100%; justify-content: center; height: 42px; font-size: 13px; margin-top: 6px;">
+          Log In to Admin Console
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <main class="container">
+    
+    <!-- Toast Message Area -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Console Tab Selector -->
+    <div class="console-tabs">
+      <button id="tab-btn-products" class="tab-btn active">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+        Products & Configurations
+      </button>
+      <button id="tab-btn-orders" class="tab-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        Orders Management
+      </button>
+      <button id="tab-btn-analytics" class="tab-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Analytics & Customers
+      </button>
+    </div>
+
+    <!-- Products Tab Section -->
+    <div id="products-tab-section">
+      <!-- Store Settings Section -->
+      <div class="settings-card">
+      <div class="settings-card-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <h3>Global Store Configurations</h3>
+        </div>
+      </div>
+      <form id="settings-form" class="settings-form-row">
+        <div class="settings-form-group">
+          <label for="settings-threshold">Free Delivery Threshold (₹)</label>
+          <input type="number" id="settings-threshold" required min="0" placeholder="e.g. 999">
+        </div>
+        <div class="settings-form-group">
+          <label for="settings-charge">Standard Delivery Charge (₹)</label>
+          <input type="number" id="settings-charge" required min="0" placeholder="e.g. 70">
+        </div>
+        <div class="settings-form-group">
+          <label for="settings-cod-fee">COD Convenience Fee (₹)</label>
+          <input type="number" id="settings-cod-fee" required min="0" placeholder="e.g. 40" value="40">
+        </div>
+        <div class="settings-toggle-group">
+          <label class="switch">
+            <input type="checkbox" id="settings-cod">
+            <span class="slider"></span>
+          </label>
+          <span style="font-size: 11px; font-weight: 700; color: #333333; user-select: none;">Enable Cash on Delivery (COD)</span>
+        </div>
+        <div style="align-self: flex-end;">
+          <button type="submit" class="btn-primary" style="height: 38px; padding: 0 24px; white-space: nowrap;">
+            Save Configurations
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Products Catalog Section Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; margin-top: 32px; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h3 style="font-family: var(--display); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-main); margin: 0;">
+          Products Catalog (Category-Wise)
+        </h3>
+        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Filter and manage items grouped by product category</span>
+      </div>
+      <button id="btn-add-product" class="btn-primary" style="height: 38px; padding: 0 20px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Add New Product
+      </button>
+    </div>
+
+    <!-- Category Filter Bar -->
+    <div id="admin-category-filter-bar" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px; scrollbar-width: thin;"></div>
+
+    <!-- Product Grid View -->
+    <div id="products-view" class="products-category-wrapper">
+      <!-- Injected dynamically by app.js -->
+    </div>
+
+    </div> <!-- Close products-tab-section -->
+
+    <!-- Orders Tab Section -->
+    <div id="orders-tab-section" class="hidden">
+      <div class="orders-card">
+        <div class="orders-card-header">
+          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              <h3>User Orders Management</h3>
+              <span style="font-size: 9px; font-weight: 800; background-color: #d1fae5; color: #047857; padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; margin-left: 4px;">
+                <span style="width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; display: inline-block;"></span>
+                LIVE AUTO-SYNC
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <div class="search-box">
+                <input type="text" id="order-search" placeholder="Search by Order ID, Customer Name, or Phone...">
+              </div>
+              <button id="btn-export-excel" type="button" style="padding: 8px 14px; font-size: 11px; font-weight: 800; background: #10b981; border: none; border-radius: 8px; color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>📥 Export Orders (Excel / CSV)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="orders-table-wrapper">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Ordered Items</th>
+                <th>Mobile</th>
+                <th>Address</th>
+                <th>Payment Method</th>
+                <th>Payment Status</th>
+                <th class="text-right">Total Amount</th>
+                <th>Tracking & Order Status</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-list-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics & Customers Tab Section -->
+    <div id="analytics-tab-section" class="hidden">
+      <!-- Section 1: Financial & User Overview Grid -->
+      <div class="analytics-metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">THIS MONTH EARNINGS</span>
+            <h3 id="stat-monthly-revenue" class="metric-value">₹0</h3>
+            <span class="metric-subtext">Current Month Revenue</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">FINANCIAL YEAR (FY)</span>
+            <h3 id="stat-fy-revenue" class="metric-value">₹0</h3>
+            <span id="stat-fy-label" class="metric-subtext">FY 2026-2027 Revenue</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">TOTAL REGISTERED USERS</span>
+            <h3 id="stat-total-users" class="metric-value">0</h3>
+            <span class="metric-subtext">Customer Base</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-label">TOTAL STORE ORDERS</span>
+            <h3 id="stat-total-orders" class="metric-value">0</h3>
+            <span class="metric-subtext">Total Processed Orders</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Financial Graph Grid -->
+      <div class="analytics-card" style="margin-top: 20px;">
+        <div class="analytics-card-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3>Monthly Financial Revenue Chart (₹ INR)</h3>
+            <span style="font-size: 9px; font-weight: 800; background-color: #d1fae5; color: #047857; padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
+              <span style="width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; display: inline-block;"></span>
+              LIVE AUTO-SYNC
+            </span>
+          </div>
+          <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Real-time Earnings Growth (Paid Orders Only)</span>
+        </div>
+        <div id="revenue-chart-container" class="chart-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Section 3: Registered Users List Table -->
+      <div class="analytics-card" style="margin-top: 24px;">
+        <div class="analytics-card-header">
+          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <h3>Registered Customer Directory</h3>
+              <span style="font-size: 9px; font-weight: 800; background-color: #d1fae5; color: #047857; padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; margin-left: 4px;">
+                <span style="width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; display: inline-block;"></span>
+                LIVE AUTO-SYNC
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <div class="search-box">
+                <input type="text" id="user-search" placeholder="Search by User ID, Mobile, or Email...">
+              </div>
+              <button id="btn-export-customers" type="button" style="padding: 8px 14px; font-size: 11px; font-weight: 800; background: #0f172a; border: none; border-radius: 8px; color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>📥 Export Customers (.csv)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="orders-table-wrapper">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Customer Name</th>
+                <th>Mobile Number</th>
+                <th>Gmail / Email ID</th>
+                <th>Role</th>
+                <th>Joined Date</th>
+                <th class="text-right">Total Orders</th>
+              </tr>
+            </thead>
+            <tbody id="users-list-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer Overlay for Add/Edit Form -->
+    <div id="form-drawer" class="drawer hidden">
+      <div class="drawer-backdrop" id="drawer-close-backdrop"></div>
+      <div class="drawer-content">
+        <div class="drawer-header">
+          <h2 id="drawer-title">Add New Product</h2>
+          <button id="btn-close-drawer" class="btn-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <form id="product-form" class="drawer-body">
+          <input type="hidden" id="product-id">
+
+          <!-- Section 1: Basic Info -->
+          <div class="form-section">
+            <h3>Basic Details</h3>
+            <div class="form-group">
+              <label for="title">Product Name *</label>
+              <input type="text" id="title" required placeholder="e.g. Apex Cyberpunk Headphone Stand">
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="slug">URL Slug *</label>
+                <input type="text" id="slug" required placeholder="e.g. apex-cyberpunk-headphone-stand">
+              </div>
+              <div class="form-group">
+                <label for="SKU">SKU Code *</label>
+                <input type="text" id="SKU" required placeholder="e.g. MWM-HS-001">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="short_description">1. Short Description (Displayed at top summary)</label>
+              <input type="text" id="short_description" placeholder="Optional brief 1-2 sentence summary snippet.">
+            </div>
+            
+            <div class="form-group">
+              <label for="description">2. Full Description</label>
+              <textarea id="description" rows="4" placeholder="Detailed storytelling about design, use cases, and quality."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="material">Material Specification</label>
+                <input type="text" id="material" placeholder="e.g. Premium PLA+ Matte">
+              </div>
+              <div class="form-group">
+                <label for="dimensions">Dimensions</label>
+                <input type="text" id="dimensions" placeholder="e.g. 15 x 10 x 22 cm">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category *</label>
+              <input type="text" id="category" required placeholder="e.g. Headphone Stands">
+            </div>
+
+            <!-- Upload Files (Support multiple images for slider) -->
+            <div class="form-group">
+              <label for="thumbnail-file">Product Images (Upload one or more) *</label>
+              <input type="file" id="thumbnail-file" accept="image/*" multiple>
+              <input type="hidden" id="thumbnail">
+              <input type="hidden" id="gallery">
+              <div id="upload-status" style="font-size: 10px; color: var(--green); font-weight: 600; margin-top: 4px;"></div>
+              
+              <!-- Selected Images Preview Gallery & Removal -->
+              <div id="image-preview-container" class="image-preview-container"></div>
+            </div>
+          </div>
+
+          <!-- Section 2: Pricing & Inventory -->
+          <div class="form-section">
+            <h3>Pricing & Operations</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="price">Price (₹ INR) *</label>
+                <input type="number" id="price" required min="1" step="1" placeholder="e.g. 2499">
+              </div>
+              <div class="form-group">
+                <label for="discount_price">Discount Price (₹ INR)</label>
+                <input type="number" id="discount_price" min="0" step="1" placeholder="Leave empty if no discount">
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="stock">Initial Stock *</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="number" id="stock" required min="0" value="10" placeholder="e.g. 15" style="flex: 1;">
+                  <button type="button" id="btn-out-of-stock" class="btn-secondary" style="padding: 10px; font-size: 10px; height: 100%; white-space: nowrap; border: 1px solid var(--border-color); background: var(--bg-card); cursor: pointer; border-radius: 8px;">Set 0 (Out of Stock)</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="production_time">Production Time *</label>
+                <input type="text" id="production_time" required value="2-3 Days" placeholder="e.g. 2 Days">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="rating">Rating (0.0 to 5.0) *</label>
+                <input type="number" id="rating" required min="0" max="5" step="0.1" value="5.0" placeholder="e.g. 4.8">
+              </div>
+            </div>
+
+            <!-- Store Display Options -->
+            <div class="form-section" style="margin-top: 16px;">
+              <h3 style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Store Display Settings</h3>
+              <div class="form-group" style="background: var(--bg-body); padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: var(--text-color); font-size: 12px; margin: 0;">
+                  <input type="checkbox" id="pinned_to_top" style="width: 18px; height: 18px; accent-color: var(--primary);">
+                  <span>📌 Pin Product to Top (Always display at the very top of store homepage & catalog)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Custom Product Options (Lithophane / Customized Products) -->
+          <div class="form-section" style="margin-top: 16px; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; background: #f8fafc;">
+            <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>🎨 Custom Product Options (Lithophane / Custom Items)</span>
+            </h3>
+            
+            <div class="form-group" style="margin-bottom: 8px;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: #0f172a; font-size: 12px;">
+                <input type="checkbox" id="has_custom_options" style="width: 18px; height: 18px; accent-color: #041e42;">
+                <span>Enable Custom Product Requirements (Photo Upload, Size/Frame Price Variants)</span>
+              </label>
+            </div>
+
+            <div id="custom-options-expand" style="display: none; flex-direction: column; gap: 12px; padding-top: 10px; border-top: 1px solid #cbd5e1;">
+              
+              <!-- 📸 Photo Upload Toggle -->
+              <div class="form-group" style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: #1e293b; font-size: 11px;">
+                  <input type="checkbox" id="allow_photo_upload" style="width: 16px; height: 16px; accent-color: #041e42;">
+                  <span>📸 Require Customer Photo Upload (For Lithophane / Custom 3D Photo Prints)</span>
+                </label>
+              </div>
+
+              <!-- 📐 Size/Frame Variants Toggle & List -->
+              <div class="form-group" style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: #1e293b; font-size: 11px; margin-bottom: 8px;">
+                  <input type="checkbox" id="allow_size_variants" style="width: 16px; height: 16px; accent-color: #041e42;">
+                  <span>📐 Enable Size / Frame Price Variants</span>
+                </label>
+                
+                <div id="size-variants-container" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px;">
+                  <div id="size-variants-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                  <button type="button" id="btn-add-size-variant" class="btn-secondary" style="align-self: flex-start; padding: 6px 12px; font-size: 10px; font-weight: 700; border-radius: 6px; cursor: pointer;">
+                    + Add Size Option
+                  </button>
+                </div>
+              </div>
+
+              <!-- 🔢 Quantity Toggle -->
+              <div class="form-group" style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: #1e293b; font-size: 11px;">
+                  <input type="checkbox" id="allow_quantity" checked style="width: 16px; height: 16px; accent-color: #041e42;">
+                  <span>🔢 Show Quantity Selector on Product Page</span>
+                </label>
+              </div>
+
+              <!-- 🚫 Disable Cash on Delivery (COD) Toggle -->
+              <div class="form-group" style="background: #fff5f5; padding: 10px 12px; border-radius: 8px; border: 1px solid #fecaca;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: #991b1b; font-size: 11px;">
+                  <input type="checkbox" id="disable_cod" style="width: 16px; height: 16px; accent-color: #dc2626;">
+                  <span>🚫 Disable Cash on Delivery (COD) for this item (Require Online Prepaid Payment)</span>
+                </label>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Form Footer Actions -->
+          <div class="drawer-footer">
+            <button type="button" id="btn-cancel-form" class="btn-secondary">Cancel</button>
+            <button type="submit" id="btn-submit-form" class="btn-primary">Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Invoice Modal Overlay (Outside main container to support printing) -->
+  <div id="invoice-modal" class="invoice-modal hidden">
+    <div class="invoice-modal-backdrop" id="invoice-close-backdrop"></div>
+    <div class="invoice-modal-content">
+      <!-- Invoice Container to Print -->
+      <div class="invoice-container" id="invoice-print-area">
+        <div class="invoice-top-container">
+          <div class="invoice-top-left">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 0.14em; font-size: 22px; text-transform: uppercase; color: #111111;">
+              Make<span style="color: #777777; font-weight: 500;">With</span>Mojo
+            </div>
+          </div>
+          <div class="invoice-top-right">
+            <div style="font-size: 14px; font-weight: 700; color: #000000; text-align: right; text-transform: uppercase;">
+              Tax Invoice/Bill of Supply/Cash Memo
+            </div>
+            <div style="font-size: 11px; color: #555555; text-align: right;">
+              (Original for Recipient)
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-sold-billing-shipping-grid">
+          <div class="invoice-sold-by-col">
+            <div style="font-weight: 700; margin-bottom: 4px; font-size: 11px; color: #555555;">Sold By:</div>
+            <div style="font-size: 12px; font-weight: 700; color: #111111;">MakeWithMojo</div>
+          </div>
+          
+          <div class="invoice-address-col">
+            <div style="font-weight: 700; margin-bottom: 4px; font-size: 11px; color: #555555; text-align: right;">Billing Address:</div>
+            <div style="font-size: 11px; line-height: 1.4; text-align: right; color: #222222;">
+              <div class="inv-customer-name" id="inv-billing-name" style="font-weight: 700;">Customer Name</div>
+              <div id="inv-billing-address">Street Address, Zip Code</div>
+              <div style="font-weight: 600; margin-top: 2px;">Mobile: <span id="inv-billing-phone">Phone Number</span></div>
+            </div>
+          </div>
+
+          <div class="invoice-address-col">
+            <div style="font-weight: 700; margin-bottom: 4px; font-size: 11px; color: #555555; text-align: right;">Shipping Address:</div>
+            <div style="font-size: 11px; line-height: 1.4; text-align: right; color: #222222;">
+              <div class="inv-customer-name" id="inv-shipping-name" style="font-weight: 700;">Customer Name</div>
+              <div id="inv-shipping-address">Street Address, Zip Code</div>
+              <div style="font-weight: 600; margin-top: 2px;">Mobile: <span id="inv-shipping-phone">Phone Number</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-meta-row">
+          <div><strong>Order Number:</strong> <span id="inv-order-id">MWM-000000</span></div>
+          <div><strong>Order Date:</strong> <span id="inv-order-date">01/01/2026</span></div>
+          <div><strong>Invoice Number:</strong> <span id="inv-invoice-id">MWM-000000</span></div>
+          <div><strong>Invoice Date:</strong> <span id="inv-invoice-date">01/01/2026</span></div>
+        </div>
+
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">Sl. No</th>
+              <th>Description</th>
+              <th class="text-right" style="width: 100px;">Unit Price</th>
+              <th class="text-center" style="width: 60px;">Qty</th>
+              <th class="text-right" style="width: 100px;">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody id="invoice-items-body">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+
+        <div class="invoice-total-words-grid">
+          <div class="invoice-words-left">
+            <div><strong>Amount in Words:</strong></div>
+            <div id="inv-words" style="font-style: italic; font-weight: 650; margin-top: 4px; font-size: 11px; text-transform: capitalize;">Seven Thousand Five Hundred and Sixteen Rupees Only</div>
+          </div>
+          <div class="invoice-totals-right">
+            <div class="invoice-total-row">
+              <span>Total:</span>
+              <span id="inv-total" style="font-weight: 900; font-size: 14px;">₹0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-signatory-row">
+          <div style="font-size: 11px; font-weight: 700; color: #222222; text-align: right;">
+            For MakeWithMojo:
+          </div>
+          <div style="margin-top: 50px; border-top: 1px dashed #555555; width: 180px; align-self: flex-end; text-align: center; font-size: 10px; color: #555555; padding-top: 4px; font-weight: 700;">
+            Authorized Signatory
+          </div>
+        </div>
+      </div>
+
+      <div class="invoice-modal-footer">
+        <button type="button" id="btn-print-invoice" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Print Invoice
+        </button>
+        <button type="button" id="btn-close-invoice" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

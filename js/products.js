@@ -421,6 +421,14 @@ function resetForm() {
   inputDesc.value = '';
   inputPrice.value = '';
   inputDiscountPrice.value = '';
+
+  const inputPriceA5 = document.getElementById('price_a5');
+  const inputPriceA4 = document.getElementById('price_a4');
+  const inputPriceA3 = document.getElementById('price_a3');
+  if (inputPriceA5) inputPriceA5.value = '';
+  if (inputPriceA4) inputPriceA4.value = '';
+  if (inputPriceA3) inputPriceA3.value = '';
+
   inputStock.value = '10';
   inputProdTime.value = '2-3 Days';
   inputRating.value = '5.0';
@@ -435,17 +443,29 @@ function resetForm() {
   const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
   if (inputShowBestValuePacks) inputShowBestValuePacks.checked = true;
 
+  const inputPack1Buy = document.getElementById('best_value_pack_1_buy');
+  const inputPack1Get = document.getElementById('best_value_pack_1_get');
   const inputPack1Title = document.getElementById('best_value_pack_1_title');
   const inputPack1Sub = document.getElementById('best_value_pack_1_subtitle');
+  const inputPack2Buy = document.getElementById('best_value_pack_2_buy');
+  const inputPack2Get = document.getElementById('best_value_pack_2_get');
   const inputPack2Title = document.getElementById('best_value_pack_2_title');
   const inputPack2Sub = document.getElementById('best_value_pack_2_subtitle');
+  const inputPack3Buy = document.getElementById('best_value_pack_3_buy');
+  const inputPack3Get = document.getElementById('best_value_pack_3_get');
   const inputPack3Title = document.getElementById('best_value_pack_3_title');
   const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
 
+  if (inputPack1Buy) inputPack1Buy.value = '';
+  if (inputPack1Get) inputPack1Get.value = '';
   if (inputPack1Title) inputPack1Title.value = '';
   if (inputPack1Sub) inputPack1Sub.value = '';
+  if (inputPack2Buy) inputPack2Buy.value = '';
+  if (inputPack2Get) inputPack2Get.value = '';
   if (inputPack2Title) inputPack2Title.value = '';
   if (inputPack2Sub) inputPack2Sub.value = '';
+  if (inputPack3Buy) inputPack3Buy.value = '';
+  if (inputPack3Get) inputPack3Get.value = '';
   if (inputPack3Title) inputPack3Title.value = '';
   if (inputPack3Sub) inputPack3Sub.value = '';
 
@@ -492,22 +512,44 @@ function openEditDrawer(id) {
     inputShowBestValuePacks.checked = product.show_best_value_packs !== false;
   }
 
+  const inputPack1Buy = document.getElementById('best_value_pack_1_buy');
+  const inputPack1Get = document.getElementById('best_value_pack_1_get');
   const inputPack1Title = document.getElementById('best_value_pack_1_title');
   const inputPack1Sub = document.getElementById('best_value_pack_1_subtitle');
+  const inputPack2Buy = document.getElementById('best_value_pack_2_buy');
+  const inputPack2Get = document.getElementById('best_value_pack_2_get');
   const inputPack2Title = document.getElementById('best_value_pack_2_title');
   const inputPack2Sub = document.getElementById('best_value_pack_2_subtitle');
+  const inputPack3Buy = document.getElementById('best_value_pack_3_buy');
+  const inputPack3Get = document.getElementById('best_value_pack_3_get');
   const inputPack3Title = document.getElementById('best_value_pack_3_title');
   const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
 
+  if (inputPack1Buy) inputPack1Buy.value = product.best_value_pack_1_buy !== undefined && product.best_value_pack_1_buy !== null ? product.best_value_pack_1_buy : '';
+  if (inputPack1Get) inputPack1Get.value = product.best_value_pack_1_get !== undefined && product.best_value_pack_1_get !== null ? product.best_value_pack_1_get : '';
   if (inputPack1Title) inputPack1Title.value = product.best_value_pack_1_title || '';
   if (inputPack1Sub) inputPack1Sub.value = product.best_value_pack_1_subtitle || '';
+
+  if (inputPack2Buy) inputPack2Buy.value = product.best_value_pack_2_buy !== undefined && product.best_value_pack_2_buy !== null ? product.best_value_pack_2_buy : '';
+  if (inputPack2Get) inputPack2Get.value = product.best_value_pack_2_get !== undefined && product.best_value_pack_2_get !== null ? product.best_value_pack_2_get : '';
   if (inputPack2Title) inputPack2Title.value = product.best_value_pack_2_title || '';
   if (inputPack2Sub) inputPack2Sub.value = product.best_value_pack_2_subtitle || '';
+
+  if (inputPack3Buy) inputPack3Buy.value = product.best_value_pack_3_buy !== undefined && product.best_value_pack_3_buy !== null ? product.best_value_pack_3_buy : '';
+  if (inputPack3Get) inputPack3Get.value = product.best_value_pack_3_get !== undefined && product.best_value_pack_3_get !== null ? product.best_value_pack_3_get : '';
   if (inputPack3Title) inputPack3Title.value = product.best_value_pack_3_title || '';
   if (inputPack3Sub) inputPack3Sub.value = product.best_value_pack_3_subtitle || '';
 
   inputPrice.value = product.price;
   inputDiscountPrice.value = product.discount_price || '';
+
+  const inputPriceA5 = document.getElementById('price_a5');
+  const inputPriceA4 = document.getElementById('price_a4');
+  const inputPriceA3 = document.getElementById('price_a3');
+  if (inputPriceA5) inputPriceA5.value = product.price_a5 !== undefined && product.price_a5 !== null ? product.price_a5 : '';
+  if (inputPriceA4) inputPriceA4.value = product.price_a4 !== undefined && product.price_a4 !== null ? product.price_a4 : '';
+  if (inputPriceA3) inputPriceA3.value = product.price_a3 !== undefined && product.price_a3 !== null ? product.price_a3 : '';
+
   inputStock.value = product.stock;
   inputProdTime.value = product.production_time;
   inputRating.value = product.rating !== undefined ? product.rating : '5.0';
@@ -575,10 +617,22 @@ async function handleFormSubmit(e) {
   const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
   const showBestValuePacksVal = inputShowBestValuePacks ? inputShowBestValuePacks.checked : true;
 
+  const inputPriceA5 = document.getElementById('price_a5');
+  const inputPriceA4 = document.getElementById('price_a4');
+  const inputPriceA3 = document.getElementById('price_a3');
+
+  const inputPack1Buy = document.getElementById('best_value_pack_1_buy');
+  const inputPack1Get = document.getElementById('best_value_pack_1_get');
   const inputPack1Title = document.getElementById('best_value_pack_1_title');
   const inputPack1Sub = document.getElementById('best_value_pack_1_subtitle');
+  
+  const inputPack2Buy = document.getElementById('best_value_pack_2_buy');
+  const inputPack2Get = document.getElementById('best_value_pack_2_get');
   const inputPack2Title = document.getElementById('best_value_pack_2_title');
   const inputPack2Sub = document.getElementById('best_value_pack_2_subtitle');
+  
+  const inputPack3Buy = document.getElementById('best_value_pack_3_buy');
+  const inputPack3Get = document.getElementById('best_value_pack_3_get');
   const inputPack3Title = document.getElementById('best_value_pack_3_title');
   const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
 
@@ -590,12 +644,21 @@ async function handleFormSubmit(e) {
     description: inputDesc.value,
     price: parseFloat(inputPrice.value),
     discount_price: inputDiscountPrice.value ? parseFloat(inputDiscountPrice.value) : null,
+    price_a5: inputPriceA5 && inputPriceA5.value ? parseFloat(inputPriceA5.value) : null,
+    price_a4: inputPriceA4 && inputPriceA4.value ? parseFloat(inputPriceA4.value) : null,
+    price_a3: inputPriceA3 && inputPriceA3.value ? parseFloat(inputPriceA3.value) : null,
     category: finalCategory,
     show_best_value_packs: showBestValuePacksVal,
+    best_value_pack_1_buy: inputPack1Buy && inputPack1Buy.value ? parseInt(inputPack1Buy.value) : null,
+    best_value_pack_1_get: inputPack1Get && inputPack1Get.value ? parseInt(inputPack1Get.value) : null,
     best_value_pack_1_title: inputPack1Title && inputPack1Title.value.trim() ? inputPack1Title.value.trim() : null,
     best_value_pack_1_subtitle: inputPack1Sub && inputPack1Sub.value.trim() ? inputPack1Sub.value.trim() : null,
+    best_value_pack_2_buy: inputPack2Buy && inputPack2Buy.value ? parseInt(inputPack2Buy.value) : null,
+    best_value_pack_2_get: inputPack2Get && inputPack2Get.value ? parseInt(inputPack2Get.value) : null,
     best_value_pack_2_title: inputPack2Title && inputPack2Title.value.trim() ? inputPack2Title.value.trim() : null,
     best_value_pack_2_subtitle: inputPack2Sub && inputPack2Sub.value.trim() ? inputPack2Sub.value.trim() : null,
+    best_value_pack_3_buy: inputPack3Buy && inputPack3Buy.value ? parseInt(inputPack3Buy.value) : null,
+    best_value_pack_3_get: inputPack3Get && inputPack3Get.value ? parseInt(inputPack3Get.value) : null,
     best_value_pack_3_title: inputPack3Title && inputPack3Title.value.trim() ? inputPack3Title.value.trim() : null,
     best_value_pack_3_subtitle: inputPack3Sub && inputPack3Sub.value.trim() ? inputPack3Sub.value.trim() : null,
     subcategory: "3D Creation",

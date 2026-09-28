@@ -414,11 +414,26 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="price">Price (₹ INR) *</label>
-                <input type="number" id="price" required min="1" step="1" placeholder="e.g. 2499">
+                <input type="number" id="price" required min="1" step="1" placeholder="e.g. 89">
               </div>
               <div class="form-group">
                 <label for="discount_price">Discount Price (₹ INR)</label>
                 <input type="number" id="discount_price" min="0" step="1" placeholder="Leave empty if no discount">
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-top: 6px;">
+              <div class="form-group">
+                <label for="price_a5">A5 Size Price (₹ INR)</label>
+                <input type="number" id="price_a5" min="0" step="1" placeholder="Default: Base price">
+              </div>
+              <div class="form-group">
+                <label for="price_a4">A4 Size Price (₹ INR)</label>
+                <input type="number" id="price_a4" min="0" step="1" placeholder="Default: Base price x 1.6">
+              </div>
+              <div class="form-group">
+                <label for="price_a3">A3 Size Price (₹ INR)</label>
+                <input type="number" id="price_a3" min="0" step="1" placeholder="Default: Base price x 2.8">
               </div>
             </div>
             
@@ -463,33 +478,39 @@
                 <!-- Customizable Pack Offers Inputs -->
                 <div id="best-value-packs-custom-container" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #fef08a;">
                   <div style="font-size: 11px; font-weight: 800; color: #854d0e; border-bottom: 1px solid #fef08a; padding-bottom: 4px;">
-                    ✏️ Customize Offer Pack Text (Leave empty to use Storefront Default Offers):
+                    ✏️ Customize Offer Packs (Quantities & Labels):
                   </div>
 
                   <!-- Pack 1 -->
                   <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 1 Title & Note:</span>
-                    <div style="display: flex; gap: 6px;">
-                      <input type="text" id="best_value_pack_1_title" placeholder="Default: Buy 1 → Get 2 FREE" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_1_subtitle" placeholder="Default: 🛒 Add 3 posters" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 1 (Buy & Get Counts + Title & Note):</span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                      <input type="number" id="best_value_pack_1_buy" min="1" placeholder="Buy: 1" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="number" id="best_value_pack_1_get" min="1" placeholder="Get: 2" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_1_title" placeholder="Title (e.g. Buy 1 → Get 2 FREE)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_1_subtitle" placeholder="Note (e.g. 🛒 Add 3 posters)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
                     </div>
                   </div>
 
                   <!-- Pack 2 -->
                   <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 2 Title & Note:</span>
-                    <div style="display: flex; gap: 6px;">
-                      <input type="text" id="best_value_pack_2_title" placeholder="Default: Buy 2 → Get 4 FREE" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_2_subtitle" placeholder="Default: 🛒 Add 8 posters" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 2 (Buy & Get Counts + Title & Note):</span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                      <input type="number" id="best_value_pack_2_buy" min="1" placeholder="Buy: 2" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="number" id="best_value_pack_2_get" min="1" placeholder="Get: 4" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_2_title" placeholder="Title (e.g. Buy 2 → Get 4 FREE)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_2_subtitle" placeholder="Note (e.g. 🛒 Add 6 posters)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
                     </div>
                   </div>
 
                   <!-- Pack 3 -->
                   <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 3 (⭐ Best Value) Title & Note:</span>
-                    <div style="display: flex; gap: 6px;">
-                      <input type="text" id="best_value_pack_3_title" placeholder="Default: Buy 3 → Get 9 FREE" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_3_subtitle" placeholder="Default: 🛒 Add 15 posters" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 3 (⭐ Best Value - Buy & Get Counts + Title & Note):</span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                      <input type="number" id="best_value_pack_3_buy" min="1" placeholder="Buy: 3" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="number" id="best_value_pack_3_get" min="1" placeholder="Get: 9" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_3_title" placeholder="Title (e.g. Buy 3 → Get 9 FREE)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_3_subtitle" placeholder="Note (e.g. 🛒 Add 12 posters)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
                     </div>
                   </div>
                 </div>

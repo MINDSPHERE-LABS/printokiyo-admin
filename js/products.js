@@ -434,6 +434,21 @@ function resetForm() {
   if (inputPinnedToTop) inputPinnedToTop.checked = false;
   const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
   if (inputShowBestValuePacks) inputShowBestValuePacks.checked = true;
+
+  const inputPack1Title = document.getElementById('best_value_pack_1_title');
+  const inputPack1Sub = document.getElementById('best_value_pack_1_subtitle');
+  const inputPack2Title = document.getElementById('best_value_pack_2_title');
+  const inputPack2Sub = document.getElementById('best_value_pack_2_subtitle');
+  const inputPack3Title = document.getElementById('best_value_pack_3_title');
+  const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
+
+  if (inputPack1Title) inputPack1Title.value = '';
+  if (inputPack1Sub) inputPack1Sub.value = '';
+  if (inputPack2Title) inputPack2Title.value = '';
+  if (inputPack2Sub) inputPack2Sub.value = '';
+  if (inputPack3Title) inputPack3Title.value = '';
+  if (inputPack3Sub) inputPack3Sub.value = '';
+
   if (inputHasCustomOptions) inputHasCustomOptions.checked = false;
   if (customOptionsExpand) customOptionsExpand.style.display = 'none';
   if (inputAllowPhotoUpload) inputAllowPhotoUpload.checked = false;
@@ -476,6 +491,20 @@ function openEditDrawer(id) {
   if (inputShowBestValuePacks) {
     inputShowBestValuePacks.checked = product.show_best_value_packs !== false;
   }
+
+  const inputPack1Title = document.getElementById('best_value_pack_1_title');
+  const inputPack1Sub = document.getElementById('best_value_pack_1_subtitle');
+  const inputPack2Title = document.getElementById('best_value_pack_2_title');
+  const inputPack2Sub = document.getElementById('best_value_pack_2_subtitle');
+  const inputPack3Title = document.getElementById('best_value_pack_3_title');
+  const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
+
+  if (inputPack1Title) inputPack1Title.value = product.best_value_pack_1_title || '';
+  if (inputPack1Sub) inputPack1Sub.value = product.best_value_pack_1_subtitle || '';
+  if (inputPack2Title) inputPack2Title.value = product.best_value_pack_2_title || '';
+  if (inputPack2Sub) inputPack2Sub.value = product.best_value_pack_2_subtitle || '';
+  if (inputPack3Title) inputPack3Title.value = product.best_value_pack_3_title || '';
+  if (inputPack3Sub) inputPack3Sub.value = product.best_value_pack_3_subtitle || '';
 
   inputPrice.value = product.price;
   inputDiscountPrice.value = product.discount_price || '';
@@ -546,6 +575,13 @@ async function handleFormSubmit(e) {
   const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
   const showBestValuePacksVal = inputShowBestValuePacks ? inputShowBestValuePacks.checked : true;
 
+  const inputPack1Title = document.getElementById('best_value_pack_1_title');
+  const inputPack1Sub = document.getElementById('best_value_pack_1_subtitle');
+  const inputPack2Title = document.getElementById('best_value_pack_2_title');
+  const inputPack2Sub = document.getElementById('best_value_pack_2_subtitle');
+  const inputPack3Title = document.getElementById('best_value_pack_3_title');
+  const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
+
   // Construct payload with dynamic rating and gallery
   const productPayload = {
     title: inputTitle.value,
@@ -556,6 +592,12 @@ async function handleFormSubmit(e) {
     discount_price: inputDiscountPrice.value ? parseFloat(inputDiscountPrice.value) : null,
     category: finalCategory,
     show_best_value_packs: showBestValuePacksVal,
+    best_value_pack_1_title: inputPack1Title && inputPack1Title.value.trim() ? inputPack1Title.value.trim() : null,
+    best_value_pack_1_subtitle: inputPack1Sub && inputPack1Sub.value.trim() ? inputPack1Sub.value.trim() : null,
+    best_value_pack_2_title: inputPack2Title && inputPack2Title.value.trim() ? inputPack2Title.value.trim() : null,
+    best_value_pack_2_subtitle: inputPack2Sub && inputPack2Sub.value.trim() ? inputPack2Sub.value.trim() : null,
+    best_value_pack_3_title: inputPack3Title && inputPack3Title.value.trim() ? inputPack3Title.value.trim() : null,
+    best_value_pack_3_subtitle: inputPack3Sub && inputPack3Sub.value.trim() ? inputPack3Sub.value.trim() : null,
     subcategory: "3D Creation",
     tags: ["3dprint", "premium", "home-decor"],
     thumbnail: thumbUrl,

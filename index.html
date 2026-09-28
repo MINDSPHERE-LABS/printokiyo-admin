@@ -460,12 +460,37 @@
                   <span>🔥 Enable BEST VALUE PACKS Offer Box on Product Page</span>
                 </label>
 
-                <div style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #fef08a; font-size: 11px; color: #713f12; line-height: 1.5;">
-                  <strong>Storefront Default Offers Banner Included:</strong>
-                  <div style="display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap;">
-                    <span style="background: #fef9c3; padding: 3px 8px; border-radius: 6px; font-weight: 700;">Pack 1: Buy 1 → Get 2 FREE</span>
-                    <span style="background: #fef9c3; padding: 3px 8px; border-radius: 6px; font-weight: 700;">Pack 2: Buy 2 → Get 4 FREE</span>
-                    <span style="background: #fef08a; color: #854d0e; padding: 3px 8px; border-radius: 6px; font-weight: 800;">⭐ Pack 3: Buy 3 → Get 9 FREE (BEST VALUE)</span>
+                <!-- Customizable Pack Offers Inputs -->
+                <div id="best-value-packs-custom-container" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #fef08a;">
+                  <div style="font-size: 11px; font-weight: 800; color: #854d0e; border-bottom: 1px solid #fef08a; padding-bottom: 4px;">
+                    ✏️ Customize Offer Pack Text (Leave empty to use Storefront Default Offers):
+                  </div>
+
+                  <!-- Pack 1 -->
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 1 Title & Note:</span>
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" id="best_value_pack_1_title" placeholder="Default: Buy 1 → Get 2 FREE" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_1_subtitle" placeholder="Default: 🛒 Add 3 posters" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+                  </div>
+
+                  <!-- Pack 2 -->
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 2 Title & Note:</span>
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" id="best_value_pack_2_title" placeholder="Default: Buy 2 → Get 4 FREE" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_2_subtitle" placeholder="Default: 🛒 Add 8 posters" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+                  </div>
+
+                  <!-- Pack 3 -->
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 3 (⭐ Best Value) Title & Note:</span>
+                    <div style="display: flex; gap: 6px;">
+                      <input type="text" id="best_value_pack_3_title" placeholder="Default: Buy 3 → Get 9 FREE" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                      <input type="text" id="best_value_pack_3_subtitle" placeholder="Default: 🛒 Add 15 posters" style="flex: 1; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
                   </div>
                 </div>
               </div>

@@ -514,18 +514,17 @@
               </div>
             </div>
           </div>
-          </div>
 
-          <!-- Section 3: Custom Product Options (Lithophane / Customized Products) -->
-          <div class="form-section" style="margin-top: 16px; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; background: #f8fafc;">
-            <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-              <span>🎨 Custom Product Options (Lithophane / Custom Items)</span>
+          <!-- Section 5: Custom Product Options (Lithophane / Custom Photo / Customized Products) -->
+          <div class="form-section" style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; background: #f8fafc;">
+            <h3 style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>🎨 Custom Options & Photo Uploads (Lithophane / Custom Items)</span>
             </h3>
             
             <div class="form-group" style="margin-bottom: 8px;">
               <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: #0f172a; font-size: 12px;">
                 <input type="checkbox" id="has_custom_options" style="width: 18px; height: 18px; accent-color: #041e42;">
-                <span>Enable Custom Product Requirements (Photo Upload, Size/Frame Price Variants)</span>
+                <span>Enable Custom Product Requirements (Photo Upload, Custom Size/Frame Variants)</span>
               </label>
             </div>
 
@@ -543,7 +542,7 @@
               <div class="form-group" style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: #1e293b; font-size: 11px; margin-bottom: 8px;">
                   <input type="checkbox" id="allow_size_variants" style="width: 16px; height: 16px; accent-color: #041e42;">
-                  <span>📐 Enable Size / Frame Price Variants</span>
+                  <span>📐 Enable Custom Size / Frame Price Variants</span>
                 </label>
                 
                 <div id="size-variants-container" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px;">
@@ -573,10 +572,14 @@
             </div>
           </div>
 
-          <!-- Form Footer Actions -->
-          <div class="drawer-footer">
-            <button type="button" id="btn-cancel-form" class="btn-secondary">Cancel</button>
-            <button type="submit" id="btn-submit-form" class="btn-primary">Save Product</button>
+          </div> <!-- End drawer-body scrollable container -->
+
+          <!-- Permanent Sticky Footer Actions -->
+          <div class="drawer-footer" style="padding: 16px 24px; border-top: 1px solid var(--border-color); background: #ffffff; display: flex; justify-content: flex-end; gap: 12px; z-index: 50;">
+            <button type="button" id="btn-cancel-form" class="btn-secondary" style="padding: 10px 20px; font-weight: 700; cursor: pointer;">Cancel</button>
+            <button type="submit" id="btn-submit-form" class="btn-primary" style="padding: 10px 28px; font-weight: 800; font-size: 13px; background: #041E42; color: #ffffff; border-radius: 10px; cursor: pointer;">
+              💾 SAVE PRODUCT
+            </button>
           </div>
         </form>
       </div>

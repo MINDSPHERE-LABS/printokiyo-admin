@@ -576,6 +576,7 @@ async function loadProducts() {
     const res = await fetch(`${API_BASE_URL}/products`);
     if (!res.ok) throw new Error("Could not load products");
     products = await res.json();
+    populateCategoryDatalist();
     renderProducts();
   } catch (err) {
     console.error(err);
@@ -583,6 +584,40 @@ async function loadProducts() {
     productsView.classList.add('hidden');
     if (emptyState) emptyState.classList.remove('hidden');
   }
+}
+
+// Populate Category Datalist dynamically with default storefront & custom categories
+function populateCategoryDatalist() {
+  const datalist = document.getElementById('category-list');
+  if (!datalist) return;
+
+  const defaultCats = [
+    "Anime & Gaming",
+    "Superhero",
+    "Supercars",
+    "Superbike",
+    "Cricket",
+    "Devotional",
+    "Gym & Fitness",
+    "Music",
+    "Headphone Stands",
+    "Lithophane",
+    "Home Decor",
+    "Desk Setup"
+  ];
+
+  const categorySet = new Set(defaultCats);
+  if (products && Array.isArray(products)) {
+    products.forEach(p => {
+      if (p.category && p.category.trim()) {
+        categorySet.add(p.category.trim());
+      }
+    });
+  }
+
+  datalist.innerHTML = Array.from(categorySet)
+    .map(cat => `<option value="${escapeHTML(cat)}"></option>`)
+    .join('');
 }
 
 // Render Admin Category Filter Bar
@@ -698,11 +733,14 @@ function renderProducts() {
 
     catProducts.forEach(product => {
       const isOutOfStock = product.stock <= 0;
+      const hasDiscount = Boolean(product.discount_price && product.discount_price < product.price);
+      const discountPercent = hasDiscount ? Math.round(((product.price - product.discount_price) / product.price) * 100) : 0;
+      
       const card = document.createElement('div');
       card.className = 'product-card';
       card.innerHTML = `
         <div class="card-media">
-          ${product.pinned_to_top ? `<span class="card-badge" style="background:#0f172a; color:#ffffff; font-weight:800;">📌 Pinned</span>` : (product.new_arrival ? `<span class="card-badge">New</span>` : '')}
+          ${product.pinned_to_top ? `<span class="card-badge" style="background:#0f172a; color:#ffffff; font-weight:800;">📌 Pinned</span>` : (hasDiscount ? `<span class="card-badge" style="background:#dc2626; color:#ffffff;">${discountPercent}% OFF</span>` : (product.new_arrival ? `<span class="card-badge">New</span>` : ''))}
           <img src="${getImageUrl(product.thumbnail)}" alt="${escapeHTML(product.title)}">
           
           <!-- Hover actions -->
@@ -718,8 +756,16 @@ function renderProducts() {
             ${escapeHTML(product.category || 'General')}
           </span>
           <h4 class="card-title" title="${escapeHTML(product.title)}">${escapeHTML(product.title)}</h4>
-          <div class="card-info">
-            <span class="card-price">₹${product.price.toLocaleString('en-IN')}</span>
+          <div class="card-info" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              ${hasDiscount ? `
+                <span class="card-price" style="font-weight: 800; color: #16a34a; font-size: 13px;">₹${product.discount_price.toLocaleString('en-IN')}</span>
+                <span style="font-size: 11px; text-decoration: line-through; color: #94a3b8;">₹${product.price.toLocaleString('en-IN')}</span>
+                <span style="font-size: 9px; font-weight: 800; background: #dcfce7; color: #15803d; padding: 1px 5px; border-radius: 4px;">${discountPercent}% OFF</span>
+              ` : `
+                <span class="card-price" style="font-weight: 800; font-size: 13px;">₹${product.price.toLocaleString('en-IN')}</span>
+              `}
+            </div>
             <span class="card-stock ${isOutOfStock ? 'out-stock' : 'in-stock'}">
               ${isOutOfStock ? 'Out of Stock' : `${product.stock} Stock`}
             </span>
@@ -729,7 +775,7 @@ function renderProducts() {
       
       card.querySelector('.copy-link')?.addEventListener('click', (e) => {
         e.stopPropagation();
-        const link = `https://www.makewithmojo.com/?product=${product.slug}`;
+        const link = `https://printokiyo.com/?product=${product.slug}`;
         navigator.clipboard.writeText(link);
         showToast(`🔗 Copied link for "${product.title}"!`);
       });

@@ -372,7 +372,21 @@
 
             <div class="form-group">
               <label for="category">Category *</label>
-              <input type="text" id="category" required placeholder="e.g. Headphone Stands">
+              <input type="text" id="category" list="category-list" required placeholder="Select existing or type new category name (e.g. Anime & Gaming, Lithophane)">
+              <datalist id="category-list">
+                <option value="Anime & Gaming"></option>
+                <option value="Superhero"></option>
+                <option value="Supercars"></option>
+                <option value="Superbike"></option>
+                <option value="Cricket"></option>
+                <option value="Devotional"></option>
+                <option value="Gym & Fitness"></option>
+                <option value="Music"></option>
+                <option value="Headphone Stands"></option>
+              </datalist>
+              <div style="font-size: 11px; color: #64748b; margin-top: 5px; font-weight: 500; line-height: 1.4;">
+                💡 <strong>Category Sync:</strong> Select an existing category name to add this product under it, or type a new category name to automatically create a new category section on the storefront homepage!
+              </div>
             </div>
 
             <!-- Upload Files (Support multiple images for slider) -->

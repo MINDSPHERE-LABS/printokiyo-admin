@@ -417,8 +417,8 @@ function resetForm() {
   inputTitle.value = '';
   inputSlug.value = '';
   inputSku.value = '';
-  inputShortDesc.value = '';
-  inputDesc.value = '';
+  if (inputShortDesc) inputShortDesc.value = '';
+  if (inputDesc) inputDesc.value = '';
   inputPrice.value = '';
   inputDiscountPrice.value = '';
 
@@ -501,8 +501,8 @@ function openEditDrawer(id) {
   inputTitle.value = product.title;
   inputSlug.value = product.slug;
   inputSku.value = product.SKU;
-  inputShortDesc.value = product.short_description || '';
-  inputDesc.value = product.description || '';
+  if (inputShortDesc) inputShortDesc.value = product.short_description || '';
+  if (inputDesc) inputDesc.value = product.description || '';
   if (inputMaterial) inputMaterial.value = product.material || '';
   if (inputDimensions) inputDimensions.value = product.dimensions || '';
   if (inputPinnedToTop) inputPinnedToTop.checked = Boolean(product.pinned_to_top);

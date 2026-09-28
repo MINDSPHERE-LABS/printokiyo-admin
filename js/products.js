@@ -640,8 +640,8 @@ async function handleFormSubmit(e) {
   const productPayload = {
     title: inputTitle.value,
     slug: inputSlug.value,
-    short_description: inputShortDesc.value,
-    description: inputDesc.value,
+    short_description: (typeof inputShortDesc !== 'undefined' && inputShortDesc && inputShortDesc.value) ? inputShortDesc.value : "",
+    description: (typeof inputDesc !== 'undefined' && inputDesc && inputDesc.value) ? inputDesc.value : "",
     price: parseFloat(inputPrice.value),
     discount_price: inputDiscountPrice.value ? parseFloat(inputDiscountPrice.value) : null,
     price_a5: inputPriceA5 && inputPriceA5.value ? parseFloat(inputPriceA5.value) : null,

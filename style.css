@@ -315,13 +315,15 @@ button {
   color: #c5221f;
 }
 
-/* Drawer / Form Formatter */
+/* Drawer / Full-Page Modal Formatter */
 .drawer {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 1000;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .drawer.hidden {
@@ -331,26 +333,35 @@ button {
 .drawer-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
 }
 
 .drawer-content {
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 500px;
+  max-width: 920px;
+  height: 90vh;
+  max-height: 90vh;
   background-color: #ffffff;
-  height: 100%;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
-  box-shadow: -10px 0 30px rgba(0,0,0,0.1);
-  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .drawer-header {

@@ -330,15 +330,14 @@
         <form id="product-form" class="drawer-body">
           <input type="hidden" id="product-id">
 
-          <!-- Section 1: Basic Info -->
+          <!-- Section 1: Basic Information (3-Column Grid) -->
           <div class="form-section">
-            <h3>Basic Details</h3>
-            <div class="form-group">
-              <label for="title">Product Name *</label>
-              <input type="text" id="title" required placeholder="e.g. Apex Cyberpunk Headphone Stand">
-            </div>
-            
-            <div class="form-row">
+            <h3>Product Information & Operations</h3>
+            <div class="form-row-3">
+              <div class="form-group">
+                <label for="title">Product Name *</label>
+                <input type="text" id="title" required placeholder="e.g. Goku Ultra Instinct Poster">
+              </div>
               <div class="form-group">
                 <label for="slug">URL Slug *</label>
                 <input type="text" id="slug" required placeholder="e.g. goku-ultra-instinct-poster">
@@ -349,59 +348,66 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="category">Category * (Select existing or create new)</label>
-              <select id="category" required style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-color); font-size: 13px; font-weight: 600;">
-                <option value="Anime & Gaming">Anime & Gaming</option>
-                <option value="Superhero">Superhero</option>
-                <option value="Supercars">Supercars</option>
-                <option value="Superbike">Superbike</option>
-                <option value="Cricket">Cricket</option>
-                <option value="Devotional">Devotional</option>
-                <option value="Gym & Fitness">Gym & Fitness</option>
-                <option value="Music">Music</option>
-                <option value="Headphone Stands">Headphone Stands</option>
-                <option value="Lithophane">Lithophane</option>
-                <option value="__NEW__">➕ Create New Category...</option>
-              </select>
-              
-              <div id="new_category_container" style="display: none; margin-top: 8px;">
-                <input type="text" id="new_category_input" placeholder="Type new category name (e.g. Action Figures, Neon Signs)">
+            <div class="form-row-3">
+              <div class="form-group">
+                <label for="category">Category *</label>
+                <select id="category" required style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-color); font-size: 13px; font-weight: 600;">
+                  <option value="Anime & Gaming">Anime & Gaming</option>
+                  <option value="Superhero">Superhero</option>
+                  <option value="Supercars">Supercars</option>
+                  <option value="Superbike">Superbike</option>
+                  <option value="Cricket">Cricket</option>
+                  <option value="Devotional">Devotional</option>
+                  <option value="Gym & Fitness">Gym & Fitness</option>
+                  <option value="Music">Music</option>
+                  <option value="Headphone Stands">Headphone Stands</option>
+                  <option value="Lithophane">Lithophane</option>
+                  <option value="__NEW__">➕ Create New Category...</option>
+                </select>
+                <div id="new_category_container" style="display: none; margin-top: 8px;">
+                  <input type="text" id="new_category_input" placeholder="Type new category name">
+                </div>
               </div>
 
-              <div style="font-size: 11px; color: #64748b; margin-top: 5px; font-weight: 500; line-height: 1.4;">
-                💡 <strong>Category Sync:</strong> Select an existing category from the dropdown to prevent typos. Selecting "Create New Category" will automatically generate a new category card on the storefront homepage!
+              <div class="form-group">
+                <label for="stock">Initial Stock *</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="number" id="stock" required min="0" value="10" placeholder="e.g. 15" style="flex: 1;">
+                  <button type="button" id="btn-out-of-stock" class="btn-secondary" style="padding: 10px; font-size: 10px; height: 100%; white-space: nowrap; border: 1px solid var(--border-color); background: var(--bg-card); cursor: pointer; border-radius: 8px;">Set 0</button>
+                </div>
               </div>
-            </div>
 
-            <!-- Upload Files (Support multiple images for slider) -->
-            <div class="form-group">
-              <label for="thumbnail-file">Product Images (Upload one or more) *</label>
-              <input type="file" id="thumbnail-file" accept="image/*" multiple>
-              <input type="hidden" id="thumbnail">
-              <input type="hidden" id="gallery">
-              <div id="upload-status" style="font-size: 10px; color: var(--green); font-weight: 600; margin-top: 4px;"></div>
-              
-              <!-- Selected Images Preview Gallery & Removal -->
-              <div id="image-preview-container" class="image-preview-container"></div>
+              <div class="form-group">
+                <label for="production_time">Production Time & Rating *</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="production_time" required value="2-3 Days" placeholder="e.g. 2 Days" style="flex: 1;">
+                  <input type="number" id="rating" required min="0" max="5" step="0.1" value="5.0" placeholder="Rating" style="width: 75px;">
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Section 2: Pricing & Inventory -->
+          <!-- Section 2: Pricing & Poster Sizes (3-Column Grid) -->
           <div class="form-section">
-            <h3>Pricing & Operations</h3>
-            <div class="form-row">
+            <h3>Pricing & Poster Size Prices</h3>
+            <div class="form-row-3">
               <div class="form-group">
-                <label for="price">Price (₹ INR) *</label>
+                <label for="price">Base Price (₹ INR) *</label>
                 <input type="number" id="price" required min="1" step="1" placeholder="e.g. 89">
               </div>
               <div class="form-group">
                 <label for="discount_price">Discount Price (₹ INR)</label>
                 <input type="number" id="discount_price" min="0" step="1" placeholder="Leave empty if no discount">
               </div>
+              <div class="form-group" style="justify-content: flex-end;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; background: var(--bg-body); padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <input type="checkbox" id="pinned_to_top" style="width: 16px; height: 16px; accent-color: var(--primary);">
+                  <span style="font-size: 11px;">📌 Pin Product to Homepage Top</span>
+                </label>
+              </div>
             </div>
 
-            <div class="form-row" style="margin-top: 6px;">
+            <div class="form-row-3">
               <div class="form-group">
                 <label for="price_a5">A5 Size Price (₹ INR)</label>
                 <input type="number" id="price_a5" min="0" step="1" placeholder="Default: Base price">
@@ -415,86 +421,99 @@
                 <input type="number" id="price_a3" min="0" step="1" placeholder="Default: Base price x 2.8">
               </div>
             </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="stock">Initial Stock *</label>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                  <input type="number" id="stock" required min="0" value="10" placeholder="e.g. 15" style="flex: 1;">
-                  <button type="button" id="btn-out-of-stock" class="btn-secondary" style="padding: 10px; font-size: 10px; height: 100%; white-space: nowrap; border: 1px solid var(--border-color); background: var(--bg-card); cursor: pointer; border-radius: 8px;">Set 0 (Out of Stock)</button>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="production_time">Production Time *</label>
-                <input type="text" id="production_time" required value="2-3 Days" placeholder="e.g. 2 Days">
-              </div>
+          </div>
+
+          <!-- Section 3: Product Images Upload & Preview -->
+          <div class="form-section">
+            <h3>Product Images</h3>
+            <div class="form-group">
+              <label for="thumbnail-file">Upload Images (One or More) *</label>
+              <input type="file" id="thumbnail-file" accept="image/*" multiple>
+              <input type="hidden" id="thumbnail">
+              <input type="hidden" id="gallery">
+              <div id="upload-status" style="font-size: 10px; color: var(--green); font-weight: 600; margin-top: 4px;"></div>
+              <div id="image-preview-container" class="image-preview-container"></div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="rating">Rating (0.0 to 5.0) *</label>
-                <input type="number" id="rating" required min="0" max="5" step="0.1" value="5.0" placeholder="e.g. 4.8">
-              </div>
-            </div>
+          </div>
 
-            <!-- Store Display Options & BEST VALUE PACKS -->
-            <div class="form-section" style="margin-top: 16px;">
-              <h3 style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Store Display & Offer Settings</h3>
-              
-              <div class="form-group" style="background: var(--bg-body); padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 10px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; color: var(--text-color); font-size: 12px; margin: 0;">
-                  <input type="checkbox" id="pinned_to_top" style="width: 18px; height: 18px; accent-color: var(--primary);">
-                  <span>📌 Pin Product to Top (Always display at the very top of store homepage & catalog)</span>
-                </label>
-              </div>
+          <!-- Section 4: 🔥 BEST VALUE PACKS OFFERS (3-Column Grid) -->
+          <div class="form-section" style="background: #fffbe3; padding: 14px; border-radius: 12px; border: 1px solid #fde047;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 800; color: #854d0e; font-size: 13px; margin-bottom: 10px;">
+              <input type="checkbox" id="show_best_value_packs" checked style="width: 18px; height: 18px; accent-color: #d97706;">
+              <span>🔥 Enable BEST VALUE PACKS Offer Box on Product Page</span>
+            </label>
 
-              <!-- BEST VALUE PACKS Section -->
-              <div class="form-group" style="background: #fffbe3; padding: 14px; border-radius: 10px; border: 1px solid #fde047;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 800; color: #854d0e; font-size: 13px; margin-bottom: 8px;">
-                  <input type="checkbox" id="show_best_value_packs" checked style="width: 18px; height: 18px; accent-color: #d97706;">
-                  <span>🔥 Enable BEST VALUE PACKS Offer Box on Product Page</span>
-                </label>
-
-                <!-- Customizable Pack Offers Inputs -->
-                <div id="best-value-packs-custom-container" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #fef08a;">
-                  <div style="font-size: 11px; font-weight: 800; color: #854d0e; border-bottom: 1px solid #fef08a; padding-bottom: 4px;">
-                    ✏️ Customize Offer Packs (Quantities & Labels):
+            <div id="best-value-packs-custom-container" class="form-row-3">
+              <!-- Pack 1 Card -->
+              <div style="background: #ffffff; padding: 10px 12px; border-radius: 10px; border: 1px solid #fef08a; display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 800; color: #854d0e; border-bottom: 1px solid #fef08a; padding-bottom: 4px;">Pack 1</span>
+                <div style="display: flex; gap: 6px;">
+                  <div style="flex: 1;">
+                    <label style="font-size: 9px; font-weight: 700; color: #713f12;">Buy Qty</label>
+                    <input type="number" id="best_value_pack_1_buy" min="1" placeholder="1" style="padding: 6px 8px; font-size: 11px;">
                   </div>
-
-                  <!-- Pack 1 -->
-                  <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 1 (Buy & Get Counts + Title & Note):</span>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                      <input type="number" id="best_value_pack_1_buy" min="1" placeholder="Buy: 1" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="number" id="best_value_pack_1_get" min="1" placeholder="Get: 2" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_1_title" placeholder="Title (e.g. Buy 1 → Get 2 FREE)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_1_subtitle" placeholder="Note (e.g. 🛒 Add 3 posters)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    </div>
-                  </div>
-
-                  <!-- Pack 2 -->
-                  <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 2 (Buy & Get Counts + Title & Note):</span>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                      <input type="number" id="best_value_pack_2_buy" min="1" placeholder="Buy: 2" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="number" id="best_value_pack_2_get" min="1" placeholder="Get: 4" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_2_title" placeholder="Title (e.g. Buy 2 → Get 4 FREE)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_2_subtitle" placeholder="Note (e.g. 🛒 Add 6 posters)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    </div>
-                  </div>
-
-                  <!-- Pack 3 -->
-                  <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: #713f12;">Pack 3 (⭐ Best Value - Buy & Get Counts + Title & Note):</span>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                      <input type="number" id="best_value_pack_3_buy" min="1" placeholder="Buy: 3" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="number" id="best_value_pack_3_get" min="1" placeholder="Get: 9" style="width: 75px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_3_title" placeholder="Title (e.g. Buy 3 → Get 9 FREE)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                      <input type="text" id="best_value_pack_3_subtitle" placeholder="Note (e.g. 🛒 Add 12 posters)" style="flex: 1; min-width: 120px; padding: 6px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    </div>
+                  <div style="flex: 1;">
+                    <label style="font-size: 9px; font-weight: 700; color: #713f12;">Get FREE</label>
+                    <input type="number" id="best_value_pack_1_get" min="1" placeholder="2" style="padding: 6px 8px; font-size: 11px;">
                   </div>
                 </div>
+                <div>
+                  <label style="font-size: 9px; font-weight: 700; color: #713f12;">Title Label</label>
+                  <input type="text" id="best_value_pack_1_title" placeholder="Buy 1 → Get 2 FREE" style="padding: 6px 8px; font-size: 11px;">
+                </div>
+                <div>
+                  <label style="font-size: 9px; font-weight: 700; color: #713f12;">Note Subtitle</label>
+                  <input type="text" id="best_value_pack_1_subtitle" placeholder="🛒 Add 3 posters" style="padding: 6px 8px; font-size: 11px;">
+                </div>
+              </div>
+
+              <!-- Pack 2 Card -->
+              <div style="background: #ffffff; padding: 10px 12px; border-radius: 10px; border: 1px solid #fef08a; display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 800; color: #854d0e; border-bottom: 1px solid #fef08a; padding-bottom: 4px;">Pack 2</span>
+                <div style="display: flex; gap: 6px;">
+                  <div style="flex: 1;">
+                    <label style="font-size: 9px; font-weight: 700; color: #713f12;">Buy Qty</label>
+                    <input type="number" id="best_value_pack_2_buy" min="1" placeholder="2" style="padding: 6px 8px; font-size: 11px;">
+                  </div>
+                  <div style="flex: 1;">
+                    <label style="font-size: 9px; font-weight: 700; color: #713f12;">Get FREE</label>
+                    <input type="number" id="best_value_pack_2_get" min="1" placeholder="4" style="padding: 6px 8px; font-size: 11px;">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 9px; font-weight: 700; color: #713f12;">Title Label</label>
+                  <input type="text" id="best_value_pack_2_title" placeholder="Buy 2 → Get 4 FREE" style="padding: 6px 8px; font-size: 11px;">
+                </div>
+                <div>
+                  <label style="font-size: 9px; font-weight: 700; color: #713f12;">Note Subtitle</label>
+                  <input type="text" id="best_value_pack_2_subtitle" placeholder="🛒 Add 6 posters" style="padding: 6px 8px; font-size: 11px;">
+                </div>
+              </div>
+
+              <!-- Pack 3 Card (Best Value) -->
+              <div style="background: #ffffff; padding: 10px 12px; border-radius: 10px; border: 1px solid #fde047; display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 800; color: #854d0e; border-bottom: 1px solid #fef08a; padding-bottom: 4px;">⭐ Pack 3 (Best Value)</span>
+                <div style="display: flex; gap: 6px;">
+                  <div style="flex: 1;">
+                    <label style="font-size: 9px; font-weight: 700; color: #713f12;">Buy Qty</label>
+                    <input type="number" id="best_value_pack_3_buy" min="1" placeholder="3" style="padding: 6px 8px; font-size: 11px;">
+                  </div>
+                  <div style="flex: 1;">
+                    <label style="font-size: 9px; font-weight: 700; color: #713f12;">Get FREE</label>
+                    <input type="number" id="best_value_pack_3_get" min="1" placeholder="9" style="padding: 6px 8px; font-size: 11px;">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 9px; font-weight: 700; color: #713f12;">Title Label</label>
+                  <input type="text" id="best_value_pack_3_title" placeholder="Buy 3 → Get 9 FREE" style="padding: 6px 8px; font-size: 11px;">
+                </div>
+                <div>
+                  <label style="font-size: 9px; font-weight: 700; color: #713f12;">Note Subtitle</label>
+                  <input type="text" id="best_value_pack_3_subtitle" placeholder="🛒 Add 12 posters" style="padding: 6px 8px; font-size: 11px;">
+                </div>
               </div>
             </div>
+          </div>
           </div>
 
           <!-- Section 3: Custom Product Options (Lithophane / Customized Products) -->

@@ -289,6 +289,22 @@ function getSizeVariantsData() {
 
 // Event Listeners setup
 function setupEventListeners() {
+  // Category select change listener for new category creation
+  const inputCategorySelect = document.getElementById('category');
+  const newCategoryContainer = document.getElementById('new_category_container');
+  const newCategoryInput = document.getElementById('new_category_input');
+
+  if (inputCategorySelect && newCategoryContainer) {
+    inputCategorySelect.addEventListener('change', (e) => {
+      if (e.target.value === '__NEW__') {
+        newCategoryContainer.style.display = 'block';
+        if (newCategoryInput) newCategoryInput.focus();
+      } else {
+        newCategoryContainer.style.display = 'none';
+      }
+    });
+  }
+
   // Custom Product Options Toggles
   if (inputHasCustomOptions) {
     inputHasCustomOptions.addEventListener('change', (e) => {
@@ -576,7 +592,7 @@ async function loadProducts() {
     const res = await fetch(`${API_BASE_URL}/products`);
     if (!res.ok) throw new Error("Could not load products");
     products = await res.json();
-    populateCategoryDatalist();
+    populateCategoryDropdown();
     renderProducts();
   } catch (err) {
     console.error(err);
@@ -586,10 +602,12 @@ async function loadProducts() {
   }
 }
 
-// Populate Category Datalist dynamically with default storefront & custom categories
-function populateCategoryDatalist() {
-  const datalist = document.getElementById('category-list');
-  if (!datalist) return;
+// Populate Category Select Dropdown dynamically with default & custom categories
+function populateCategoryDropdown(selectedVal = '') {
+  const select = document.getElementById('category');
+  const newCategoryContainer = document.getElementById('new_category_container');
+  const newCategoryInput = document.getElementById('new_category_input');
+  if (!select) return;
 
   const defaultCats = [
     "Anime & Gaming",
@@ -615,9 +633,32 @@ function populateCategoryDatalist() {
     });
   }
 
-  datalist.innerHTML = Array.from(categorySet)
-    .map(cat => `<option value="${escapeHTML(cat)}"></option>`)
-    .join('');
+  if (selectedVal && selectedVal !== '__NEW__' && !categorySet.has(selectedVal)) {
+    categorySet.add(selectedVal);
+  }
+
+  const categoryOptions = Array.from(categorySet).map(cat => 
+    `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`
+  );
+  categoryOptions.push(`<option value="__NEW__">➕ Create New Category...</option>`);
+
+  select.innerHTML = categoryOptions.join('');
+
+  if (selectedVal) {
+    if (categorySet.has(selectedVal)) {
+      select.value = selectedVal;
+      if (newCategoryContainer) newCategoryContainer.style.display = 'none';
+    } else {
+      select.value = '__NEW__';
+      if (newCategoryContainer) {
+        newCategoryContainer.style.display = 'block';
+        if (newCategoryInput) newCategoryInput.value = selectedVal;
+      }
+    }
+  } else {
+    select.value = "Anime & Gaming";
+    if (newCategoryContainer) newCategoryContainer.style.display = 'none';
+  }
 }
 
 // Render Admin Category Filter Bar
@@ -806,10 +847,13 @@ function resetForm() {
   inputFile.value = '';
   inputThumbnailHidden.value = '';
   inputGalleryHidden.value = '';
-  inputCategory.value = 'Headphone Stands';
+  inputCategory.value = 'Anime & Gaming';
+  populateCategoryDropdown('Anime & Gaming');
   if (inputMaterial) inputMaterial.value = '';
   if (inputDimensions) inputDimensions.value = '';
   if (inputPinnedToTop) inputPinnedToTop.checked = false;
+  const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
+  if (inputShowBestValuePacks) inputShowBestValuePacks.checked = true;
   if (inputHasCustomOptions) inputHasCustomOptions.checked = false;
   if (customOptionsExpand) customOptionsExpand.style.display = 'none';
   if (inputAllowPhotoUpload) inputAllowPhotoUpload.checked = false;
@@ -847,12 +891,18 @@ function openEditDrawer(id) {
   if (inputMaterial) inputMaterial.value = product.material || '';
   if (inputDimensions) inputDimensions.value = product.dimensions || '';
   if (inputPinnedToTop) inputPinnedToTop.checked = Boolean(product.pinned_to_top);
+  
+  const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
+  if (inputShowBestValuePacks) {
+    inputShowBestValuePacks.checked = product.show_best_value_packs !== false;
+  }
+
   inputPrice.value = product.price;
   inputDiscountPrice.value = product.discount_price || '';
   inputStock.value = product.stock;
   inputProdTime.value = product.production_time;
   inputRating.value = product.rating !== undefined ? product.rating : '5.0';
-  inputCategory.value = product.category || 'Headphone Stands';
+  populateCategoryDropdown(product.category || 'Anime & Gaming');
   
   if (inputHasCustomOptions) {
     const hasCustom = Boolean(product.has_custom_options);
@@ -906,6 +956,16 @@ async function handleFormSubmit(e) {
   const thumbUrl = currentFormImages.length > 0 ? currentFormImages[0] : (inputThumbnailHidden.value || '');
   const galleryArray = currentFormImages.length > 0 ? currentFormImages : [thumbUrl];
 
+  const inputCategorySelect = document.getElementById('category');
+  const newCategoryInput = document.getElementById('new_category_input');
+  let finalCategory = inputCategorySelect ? inputCategorySelect.value : 'Anime & Gaming';
+  if (finalCategory === '__NEW__') {
+    finalCategory = (newCategoryInput && newCategoryInput.value.trim()) ? newCategoryInput.value.trim() : 'General';
+  }
+
+  const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
+  const showBestValuePacksVal = inputShowBestValuePacks ? inputShowBestValuePacks.checked : true;
+
   // Construct payload with dynamic rating and gallery
   const productPayload = {
     title: inputTitle.value,
@@ -914,7 +974,8 @@ async function handleFormSubmit(e) {
     description: inputDesc.value,
     price: parseFloat(inputPrice.value),
     discount_price: inputDiscountPrice.value ? parseFloat(inputDiscountPrice.value) : null,
-    category: inputCategory.value,
+    category: finalCategory,
+    show_best_value_packs: showBestValuePacksVal,
     subcategory: "3D Creation",
     tags: ["3dprint", "premium", "home-decor"],
     thumbnail: thumbUrl,

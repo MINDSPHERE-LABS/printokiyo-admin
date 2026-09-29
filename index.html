@@ -327,8 +327,9 @@
           </button>
         </div>
 
-        <form id="product-form" class="drawer-body">
-          <input type="hidden" id="product-id">
+        <form id="product-form" class="drawer-form-container">
+          <div class="drawer-body">
+            <input type="hidden" id="product-id">
 
           <!-- Section 1: Basic Information (3-Column Grid) -->
           <div class="form-section">
@@ -387,14 +388,11 @@
             </div>
           </div>
 
-          <!-- Section 2: Pricing & Poster Sizes (3-Column Grid) -->
+          <!-- Section 2: Pricing & Poster Sizes -->
           <div class="form-section">
-            <h3>Pricing & Poster Size Prices</h3>
-            <div class="form-row-3">
-              <div class="form-group">
-                <label for="price">Base Price (₹ INR) *</label>
-                <input type="number" id="price" required min="1" step="1" placeholder="e.g. 89">
-              </div>
+            <h3>Pricing & Poster Sizes Configurations</h3>
+            <input type="hidden" id="price" value="89">
+            <div class="form-row-2">
               <div class="form-group">
                 <label for="discount_price">Discount Price (₹ INR)</label>
                 <input type="number" id="discount_price" min="0" step="1" placeholder="Leave empty if no discount">
@@ -407,18 +405,81 @@
               </div>
             </div>
 
-            <div class="form-row-3">
-              <div class="form-group">
-                <label for="price_a5">A5 Size Price (₹ INR)</label>
-                <input type="number" id="price_a5" min="0" step="1" placeholder="Default: Base price">
+            <!-- Size Selector ON/OFF Toggle Switch for Custom Sizes -->
+            <div class="form-group" style="margin-top: 10px; margin-bottom: 12px; background: var(--bg-body); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 800; color: var(--text-main); font-size: 12px;">
+                <input type="checkbox" id="allow_size_variants" checked style="width: 18px; height: 18px; accent-color: #041e42;">
+                <span>✨ Enable Optional Custom Sizes Section (ON / OFF Toggle)</span>
+              </label>
+            </div>
+
+            <!-- Expandable Custom Size Options Container -->
+            <div id="size-options-wrapper" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px;">
+              <!-- 3 Separate Inputs for 3 Optional Custom Sizes & Custom Prices -->
+              <div class="form-group" style="background: var(--bg-body); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                <label style="font-weight: 800; font-size: 11px; margin-bottom: 6px; display: block; color: var(--text-main);">
+                  ✨ Optional Custom Sizes & Prices (3 Separate Input Pairs)
+                </label>
+                <div class="form-row-3">
+                  <div class="form-group" style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <label for="custom_size_1" style="font-size: 10px; font-weight: 700; margin-bottom: 3px; display: block;">Custom Size 1 Name</label>
+                    <input type="text" id="custom_size_1" placeholder="e.g. 12x18 in (Optional)" style="margin-bottom: 6px;">
+                    <label for="custom_price_1" style="font-size: 10px; font-weight: 700; margin-bottom: 3px; display: block;">Custom Size 1 Price (₹)</label>
+                    <input type="number" id="custom_price_1" min="0" step="1" placeholder="e.g. 199">
+                  </div>
+
+                  <div class="form-group" style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <label for="custom_size_2" style="font-size: 10px; font-weight: 700; margin-bottom: 3px; display: block;">Custom Size 2 Name</label>
+                    <input type="text" id="custom_size_2" placeholder="e.g. 18x24 in (Optional)" style="margin-bottom: 6px;">
+                    <label for="custom_price_2" style="font-size: 10px; font-weight: 700; margin-bottom: 3px; display: block;">Custom Size 2 Price (₹)</label>
+                    <input type="number" id="custom_price_2" min="0" step="1" placeholder="e.g. 299">
+                  </div>
+
+                  <div class="form-group" style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <label for="custom_size_3" style="font-size: 10px; font-weight: 700; margin-bottom: 3px; display: block;">Custom Size 3 Name</label>
+                    <input type="text" id="custom_size_3" placeholder="e.g. 24x36 in (Optional)" style="margin-bottom: 6px;">
+                    <label for="custom_price_3" style="font-size: 10px; font-weight: 700; margin-bottom: 3px; display: block;">Custom Size 3 Price (₹)</label>
+                    <input type="number" id="custom_price_3" min="0" step="1" placeholder="e.g. 499">
+                  </div>
+                </div>
+                <span style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 6px; display: block;">
+                  Leave name empty if not using a custom size. If name is empty, it will not be shown on product page.
+                </span>
               </div>
-              <div class="form-group">
-                <label for="price_a4">A4 Size Price (₹ INR)</label>
-                <input type="number" id="price_a4" min="0" step="1" placeholder="Default: Base price x 1.6">
+            </div>
+
+            <!-- Group Toggle: Enable/Disable Standard Sizes (A5/A4/A3) block -->
+            <div class="form-group" style="margin-top: 2px; margin-bottom: 12px; background: var(--bg-body); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 800; color: var(--text-main); font-size: 12px;">
+                <input type="checkbox" id="enable_standard_sizes" checked style="width: 17px; height: 17px; accent-color: #041e42;">
+                <span>📏 Enable Standard Sizes (A5 / A4 / A3)</span>
+              </label>
+            </div>
+
+            <!-- Individual ON/OFF Toggles & Prices for A5, A4, A3 -->
+            <div class="form-row-3" id="standard-sizes-wrapper">
+              <div class="form-group" style="background: var(--bg-body); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 11px; margin-bottom: 6px;">
+                  <input type="checkbox" id="enable_a5" checked style="width: 15px; height: 15px; accent-color: #041e42;">
+                  <span>A5 Size (ON / OFF)</span>
+                </label>
+                <input type="number" id="price_a5" min="0" step="1" placeholder="A5 Price (₹)">
               </div>
-              <div class="form-group">
-                <label for="price_a3">A3 Size Price (₹ INR)</label>
-                <input type="number" id="price_a3" min="0" step="1" placeholder="Default: Base price x 2.8">
+
+              <div class="form-group" style="background: var(--bg-body); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 11px; margin-bottom: 6px;">
+                  <input type="checkbox" id="enable_a4" checked style="width: 15px; height: 15px; accent-color: #041e42;">
+                  <span>A4 Size (ON / OFF)</span>
+                </label>
+                <input type="number" id="price_a4" min="0" step="1" placeholder="A4 Price (₹)">
+              </div>
+
+              <div class="form-group" style="background: var(--bg-body); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 11px; margin-bottom: 6px;">
+                  <input type="checkbox" id="enable_a3" checked style="width: 15px; height: 15px; accent-color: #041e42;">
+                  <span>A3 Size (ON / OFF)</span>
+                </label>
+                <input type="number" id="price_a3" min="0" step="1" placeholder="A3 Price (₹)">
               </div>
             </div>
           </div>

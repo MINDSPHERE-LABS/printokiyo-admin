@@ -429,6 +429,26 @@ function resetForm() {
   if (inputPriceA4) inputPriceA4.value = '';
   if (inputPriceA3) inputPriceA3.value = '';
 
+  const inputEnableA5 = document.getElementById('enable_a5');
+  const inputEnableA4 = document.getElementById('enable_a4');
+  const inputEnableA3 = document.getElementById('enable_a3');
+  if (inputEnableA5) inputEnableA5.checked = true;
+  if (inputEnableA4) inputEnableA4.checked = true;
+  if (inputEnableA3) inputEnableA3.checked = true;
+
+  const inputCustomSize1 = document.getElementById('custom_size_1');
+  const inputCustomSize2 = document.getElementById('custom_size_2');
+  const inputCustomSize3 = document.getElementById('custom_size_3');
+  const inputCustomPrice1 = document.getElementById('custom_price_1');
+  const inputCustomPrice2 = document.getElementById('custom_price_2');
+  const inputCustomPrice3 = document.getElementById('custom_price_3');
+  if (inputCustomSize1) inputCustomSize1.value = '';
+  if (inputCustomSize2) inputCustomSize2.value = '';
+  if (inputCustomSize3) inputCustomSize3.value = '';
+  if (inputCustomPrice1) inputCustomPrice1.value = '';
+  if (inputCustomPrice2) inputCustomPrice2.value = '';
+  if (inputCustomPrice3) inputCustomPrice3.value = '';
+
   inputStock.value = '10';
   inputProdTime.value = '2-3 Days';
   inputRating.value = '5.0';
@@ -440,8 +460,11 @@ function resetForm() {
   if (inputMaterial) inputMaterial.value = '';
   if (inputDimensions) inputDimensions.value = '';
   if (inputPinnedToTop) inputPinnedToTop.checked = false;
+  
   const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
+  const bestValuePacksContainer = document.getElementById('best-value-packs-custom-container');
   if (inputShowBestValuePacks) inputShowBestValuePacks.checked = true;
+  if (bestValuePacksContainer) bestValuePacksContainer.style.display = 'flex';
 
   const inputPack1Buy = document.getElementById('best_value_pack_1_buy');
   const inputPack1Get = document.getElementById('best_value_pack_1_get');
@@ -456,23 +479,31 @@ function resetForm() {
   const inputPack3Title = document.getElementById('best_value_pack_3_title');
   const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
 
-  if (inputPack1Buy) inputPack1Buy.value = '';
-  if (inputPack1Get) inputPack1Get.value = '';
+  if (inputPack1Buy) inputPack1Buy.value = '1';
+  if (inputPack1Get) inputPack1Get.value = '2';
   if (inputPack1Title) inputPack1Title.value = '';
   if (inputPack1Sub) inputPack1Sub.value = '';
-  if (inputPack2Buy) inputPack2Buy.value = '';
-  if (inputPack2Get) inputPack2Get.value = '';
+  if (inputPack2Buy) inputPack2Buy.value = '2';
+  if (inputPack2Get) inputPack2Get.value = '4';
   if (inputPack2Title) inputPack2Title.value = '';
   if (inputPack2Sub) inputPack2Sub.value = '';
-  if (inputPack3Buy) inputPack3Buy.value = '';
-  if (inputPack3Get) inputPack3Get.value = '';
+  if (inputPack3Buy) inputPack3Buy.value = '3';
+  if (inputPack3Get) inputPack3Get.value = '9';
   if (inputPack3Title) inputPack3Title.value = '';
   if (inputPack3Sub) inputPack3Sub.value = '';
 
   if (inputHasCustomOptions) inputHasCustomOptions.checked = false;
   if (customOptionsExpand) customOptionsExpand.style.display = 'none';
   if (inputAllowPhotoUpload) inputAllowPhotoUpload.checked = false;
-  if (inputAllowSizeVariants) inputAllowSizeVariants.checked = false;
+  if (inputAllowSizeVariants) inputAllowSizeVariants.checked = true;
+  const sizeOptionsWrapper = document.getElementById('size-options-wrapper');
+  if (sizeOptionsWrapper) sizeOptionsWrapper.style.display = 'flex';
+  const inputEnableStandardSizes = document.getElementById('enable_standard_sizes');
+  const standardSizesWrapper = document.getElementById('standard-sizes-wrapper');
+  if (inputEnableStandardSizes) inputEnableStandardSizes.checked = true;
+  if (standardSizesWrapper) standardSizesWrapper.style.display = 'flex';
+  const availableSizesInput = document.getElementById('available_sizes_input');
+  if (availableSizesInput) availableSizesInput.value = '';
   if (sizeVariantsContainer) sizeVariantsContainer.style.display = 'none';
   if (sizeVariantsList) sizeVariantsList.innerHTML = '';
   if (inputAllowQuantity) inputAllowQuantity.checked = true;
@@ -487,6 +518,76 @@ function openAddDrawer() {
   resetForm();
   drawerTitle.innerText = "Add New Product";
   inputSku.value = "MWM-" + Math.floor(1000 + Math.random() * 9000);
+
+  // Pre-fill form inputs with details from the last saved product template or latest catalog product
+  try {
+    const savedTemplateStr = localStorage.getItem('mwm_last_product_template');
+    let template = savedTemplateStr ? JSON.parse(savedTemplateStr) : null;
+    if (!template && products && products.length > 0) {
+      template = products[0];
+    }
+    if (template) {
+      if (template.category) populateCategoryDropdown(template.category);
+      if (template.price) inputPrice.value = template.price;
+      const inputDiscountPrice = document.getElementById('discount_price');
+      if (inputDiscountPrice && template.discount_price) inputDiscountPrice.value = template.discount_price;
+
+      const inputPriceA5 = document.getElementById('price_a5');
+      const inputPriceA4 = document.getElementById('price_a4');
+      const inputPriceA3 = document.getElementById('price_a3');
+      if (inputPriceA5 && template.price_a5) inputPriceA5.value = template.price_a5;
+      if (inputPriceA4 && template.price_a4) inputPriceA4.value = template.price_a4;
+      if (inputPriceA3 && template.price_a3) inputPriceA3.value = template.price_a3;
+
+      const availableSizesInput = document.getElementById('available_sizes_input');
+      const sizeOptionsWrapper = document.getElementById('size-options-wrapper');
+      if (availableSizesInput && template.available_sizes && Array.isArray(template.available_sizes)) {
+        availableSizesInput.value = template.available_sizes.join(', ');
+      }
+      if (inputAllowSizeVariants) {
+        const hasSizes = template.allow_size_variants !== false;
+        inputAllowSizeVariants.checked = hasSizes;
+        if (sizeOptionsWrapper) sizeOptionsWrapper.style.display = hasSizes ? 'flex' : 'none';
+      }
+
+      if (template.stock) inputStock.value = template.stock;
+      if (template.production_time) inputProdTime.value = template.production_time;
+      if (template.rating) inputRating.value = template.rating;
+      if (inputMaterial && template.material) inputMaterial.value = template.material;
+      if (inputDimensions && template.dimensions) inputDimensions.value = template.dimensions;
+
+      const inputPack1Buy = document.getElementById('best_value_pack_1_buy');
+      const inputPack1Get = document.getElementById('best_value_pack_1_get');
+      const inputPack1Title = document.getElementById('best_value_pack_1_title');
+      const inputPack1Sub = document.getElementById('best_value_pack_1_subtitle');
+      const inputPack2Buy = document.getElementById('best_value_pack_2_buy');
+      const inputPack2Get = document.getElementById('best_value_pack_2_get');
+      const inputPack2Title = document.getElementById('best_value_pack_2_title');
+      const inputPack2Sub = document.getElementById('best_value_pack_2_subtitle');
+      const inputPack3Buy = document.getElementById('best_value_pack_3_buy');
+      const inputPack3Get = document.getElementById('best_value_pack_3_get');
+      const inputPack3Title = document.getElementById('best_value_pack_3_title');
+      const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
+
+      if (inputPack1Buy && template.best_value_pack_1_buy) inputPack1Buy.value = template.best_value_pack_1_buy;
+      if (inputPack1Get && template.best_value_pack_1_get) inputPack1Get.value = template.best_value_pack_1_get;
+      if (inputPack1Title && template.best_value_pack_1_title) inputPack1Title.value = template.best_value_pack_1_title;
+      if (inputPack1Sub && template.best_value_pack_1_subtitle) inputPack1Sub.value = template.best_value_pack_1_subtitle;
+
+      if (inputPack2Buy && template.best_value_pack_2_buy) inputPack2Buy.value = template.best_value_pack_2_buy;
+      if (inputPack2Get && template.best_value_pack_2_get) inputPack2Get.value = template.best_value_pack_2_get;
+      if (inputPack2Title && template.best_value_pack_2_title) inputPack2Title.value = template.best_value_pack_2_title;
+      if (inputPack2Sub && template.best_value_pack_2_subtitle) inputPack2Sub.value = template.best_value_pack_2_subtitle;
+
+      if (inputPack3Buy && template.best_value_pack_3_buy) inputPack3Buy.value = template.best_value_pack_3_buy;
+      if (inputPack3Get && template.best_value_pack_3_get) inputPack3Get.value = template.best_value_pack_3_get;
+      if (inputPack3Title && template.best_value_pack_3_title) inputPack3Title.value = template.best_value_pack_3_title;
+      if (inputPack3Sub && template.best_value_pack_3_subtitle) inputPack3Sub.value = template.best_value_pack_3_subtitle;
+    }
+  } catch (e) {
+    console.warn('[Admin] Could not load template:', e);
+  }
+
   formDrawer.classList.remove('hidden');
 }
 
@@ -498,9 +599,9 @@ function openEditDrawer(id) {
   drawerTitle.innerText = "Edit Product Details";
   
   inputId.value = product.id || product._id;
-  inputTitle.value = product.title;
-  inputSlug.value = product.slug;
-  inputSku.value = product.SKU;
+  inputTitle.value = product.title || '';
+  inputSlug.value = product.slug || '';
+  inputSku.value = product.SKU || '';
   if (inputShortDesc) inputShortDesc.value = product.short_description || '';
   if (inputDesc) inputDesc.value = product.description || '';
   if (inputMaterial) inputMaterial.value = product.material || '';
@@ -508,8 +609,13 @@ function openEditDrawer(id) {
   if (inputPinnedToTop) inputPinnedToTop.checked = Boolean(product.pinned_to_top);
   
   const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
+  const bestValuePacksContainer = document.getElementById('best-value-packs-custom-container');
+  const isPacksEnabled = product.show_best_value_packs !== false;
   if (inputShowBestValuePacks) {
-    inputShowBestValuePacks.checked = product.show_best_value_packs !== false;
+    inputShowBestValuePacks.checked = isPacksEnabled;
+  }
+  if (bestValuePacksContainer) {
+    bestValuePacksContainer.style.display = isPacksEnabled ? 'flex' : 'none';
   }
 
   const inputPack1Buy = document.getElementById('best_value_pack_1_buy');
@@ -525,20 +631,27 @@ function openEditDrawer(id) {
   const inputPack3Title = document.getElementById('best_value_pack_3_title');
   const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
 
-  if (inputPack1Buy) inputPack1Buy.value = product.best_value_pack_1_buy !== undefined && product.best_value_pack_1_buy !== null ? product.best_value_pack_1_buy : '';
-  if (inputPack1Get) inputPack1Get.value = product.best_value_pack_1_get !== undefined && product.best_value_pack_1_get !== null ? product.best_value_pack_1_get : '';
-  if (inputPack1Title) inputPack1Title.value = product.best_value_pack_1_title || '';
-  if (inputPack1Sub) inputPack1Sub.value = product.best_value_pack_1_subtitle || '';
+  const p1Buy = (product.best_value_pack_1_buy !== undefined && product.best_value_pack_1_buy !== null) ? product.best_value_pack_1_buy : 1;
+  const p1Get = (product.best_value_pack_1_get !== undefined && product.best_value_pack_1_get !== null) ? product.best_value_pack_1_get : 2;
+  const p2Buy = (product.best_value_pack_2_buy !== undefined && product.best_value_pack_2_buy !== null) ? product.best_value_pack_2_buy : 2;
+  const p2Get = (product.best_value_pack_2_get !== undefined && product.best_value_pack_2_get !== null) ? product.best_value_pack_2_get : 4;
+  const p3Buy = (product.best_value_pack_3_buy !== undefined && product.best_value_pack_3_buy !== null) ? product.best_value_pack_3_buy : 3;
+  const p3Get = (product.best_value_pack_3_get !== undefined && product.best_value_pack_3_get !== null) ? product.best_value_pack_3_get : 9;
 
-  if (inputPack2Buy) inputPack2Buy.value = product.best_value_pack_2_buy !== undefined && product.best_value_pack_2_buy !== null ? product.best_value_pack_2_buy : '';
-  if (inputPack2Get) inputPack2Get.value = product.best_value_pack_2_get !== undefined && product.best_value_pack_2_get !== null ? product.best_value_pack_2_get : '';
-  if (inputPack2Title) inputPack2Title.value = product.best_value_pack_2_title || '';
-  if (inputPack2Sub) inputPack2Sub.value = product.best_value_pack_2_subtitle || '';
+  if (inputPack1Buy) inputPack1Buy.value = p1Buy;
+  if (inputPack1Get) inputPack1Get.value = p1Get;
+  if (inputPack1Title) inputPack1Title.value = (product.best_value_pack_1_title && product.best_value_pack_1_title !== `Buy ${p1Buy} → Get ${p1Get} FREE`) ? product.best_value_pack_1_title : '';
+  if (inputPack1Sub) inputPack1Sub.value = (product.best_value_pack_1_subtitle && product.best_value_pack_1_subtitle !== `🛒 Add ${p1Buy + p1Get} posters`) ? product.best_value_pack_1_subtitle : '';
 
-  if (inputPack3Buy) inputPack3Buy.value = product.best_value_pack_3_buy !== undefined && product.best_value_pack_3_buy !== null ? product.best_value_pack_3_buy : '';
-  if (inputPack3Get) inputPack3Get.value = product.best_value_pack_3_get !== undefined && product.best_value_pack_3_get !== null ? product.best_value_pack_3_get : '';
-  if (inputPack3Title) inputPack3Title.value = product.best_value_pack_3_title || '';
-  if (inputPack3Sub) inputPack3Sub.value = product.best_value_pack_3_subtitle || '';
+  if (inputPack2Buy) inputPack2Buy.value = p2Buy;
+  if (inputPack2Get) inputPack2Get.value = p2Get;
+  if (inputPack2Title) inputPack2Title.value = (product.best_value_pack_2_title && product.best_value_pack_2_title !== `Buy ${p2Buy} → Get ${p2Get} FREE`) ? product.best_value_pack_2_title : '';
+  if (inputPack2Sub) inputPack2Sub.value = (product.best_value_pack_2_subtitle && product.best_value_pack_2_subtitle !== `🛒 Add ${p2Buy + p2Get} posters`) ? product.best_value_pack_2_subtitle : '';
+
+  if (inputPack3Buy) inputPack3Buy.value = p3Buy;
+  if (inputPack3Get) inputPack3Get.value = p3Get;
+  if (inputPack3Title) inputPack3Title.value = (product.best_value_pack_3_title && product.best_value_pack_3_title !== `Buy ${p3Buy} → Get ${p3Get} FREE`) ? product.best_value_pack_3_title : '';
+  if (inputPack3Sub) inputPack3Sub.value = (product.best_value_pack_3_subtitle && product.best_value_pack_3_subtitle !== `🛒 Add ${p3Buy + p3Get} posters`) ? product.best_value_pack_3_subtitle : '';
 
   inputPrice.value = product.price;
   inputDiscountPrice.value = product.discount_price || '';
@@ -549,6 +662,29 @@ function openEditDrawer(id) {
   if (inputPriceA5) inputPriceA5.value = product.price_a5 !== undefined && product.price_a5 !== null ? product.price_a5 : '';
   if (inputPriceA4) inputPriceA4.value = product.price_a4 !== undefined && product.price_a4 !== null ? product.price_a4 : '';
   if (inputPriceA3) inputPriceA3.value = product.price_a3 !== undefined && product.price_a3 !== null ? product.price_a3 : '';
+
+  const inputEnableA5 = document.getElementById('enable_a5');
+  const inputEnableA4 = document.getElementById('enable_a4');
+  const inputEnableA3 = document.getElementById('enable_a3');
+  if (inputEnableA5) inputEnableA5.checked = product.enable_a5 !== false;
+  if (inputEnableA4) inputEnableA4.checked = product.enable_a4 !== false;
+  if (inputEnableA3) inputEnableA3.checked = product.enable_a3 !== false;
+
+  const inputCustomSize1 = document.getElementById('custom_size_1');
+  const inputCustomSize2 = document.getElementById('custom_size_2');
+  const inputCustomSize3 = document.getElementById('custom_size_3');
+  const inputCustomPrice1 = document.getElementById('custom_price_1');
+  const inputCustomPrice2 = document.getElementById('custom_price_2');
+  const inputCustomPrice3 = document.getElementById('custom_price_3');
+  const avail = Array.isArray(product.available_sizes) ? product.available_sizes : [];
+  if (inputCustomSize1) inputCustomSize1.value = product.custom_size_1 || avail[0] || '';
+  if (inputCustomSize2) inputCustomSize2.value = product.custom_size_2 || avail[1] || '';
+  if (inputCustomSize3) inputCustomSize3.value = product.custom_size_3 || avail[2] || '';
+  if (inputCustomPrice1) inputCustomPrice1.value = product.custom_price_1 !== undefined && product.custom_price_1 !== null ? product.custom_price_1 : '';
+  if (inputCustomPrice2) inputCustomPrice2.value = product.custom_price_2 !== undefined && product.custom_price_2 !== null ? product.custom_price_2 : '';
+  if (inputCustomPrice3) inputCustomPrice3.value = product.custom_price_3 !== undefined && product.custom_price_3 !== null ? product.custom_price_3 : '';
+
+  const sizeOptionsWrapper = document.getElementById('size-options-wrapper');
 
   inputStock.value = product.stock;
   inputProdTime.value = product.production_time;
@@ -564,9 +700,17 @@ function openEditDrawer(id) {
     inputAllowPhotoUpload.checked = Boolean(product.allow_photo_upload);
   }
   if (inputAllowSizeVariants) {
-    const hasSizes = Boolean(product.allow_size_variants);
+    const hasSizes = product.allow_size_variants !== false;
     inputAllowSizeVariants.checked = hasSizes;
-    if (sizeVariantsContainer) sizeVariantsContainer.style.display = hasSizes ? 'flex' : 'none';
+    if (sizeOptionsWrapper) sizeOptionsWrapper.style.display = hasSizes ? 'flex' : 'none';
+  }
+  // Group toggle for A5/A4/A3 block — enabled if any standard size is enabled (or undefined = default on)
+  const inputEnableStandardSizes = document.getElementById('enable_standard_sizes');
+  const standardSizesWrapper = document.getElementById('standard-sizes-wrapper');
+  if (inputEnableStandardSizes) {
+    const anyStandardEnabled = product.enable_a5 !== false || product.enable_a4 !== false || product.enable_a3 !== false;
+    inputEnableStandardSizes.checked = anyStandardEnabled;
+    if (standardSizesWrapper) standardSizesWrapper.style.display = anyStandardEnabled ? 'flex' : 'none';
   }
   if (sizeVariantsList) {
     sizeVariantsList.innerHTML = '';
@@ -621,6 +765,26 @@ async function handleFormSubmit(e) {
   const inputPriceA4 = document.getElementById('price_a4');
   const inputPriceA3 = document.getElementById('price_a3');
 
+  const inputEnableA5 = document.getElementById('enable_a5');
+  const inputEnableA4 = document.getElementById('enable_a4');
+  const inputEnableA3 = document.getElementById('enable_a3');
+
+  const inputCustomSize1 = document.getElementById('custom_size_1');
+  const inputCustomSize2 = document.getElementById('custom_size_2');
+  const inputCustomSize3 = document.getElementById('custom_size_3');
+  const inputCustomPrice1 = document.getElementById('custom_price_1');
+  const inputCustomPrice2 = document.getElementById('custom_price_2');
+  const inputCustomPrice3 = document.getElementById('custom_price_3');
+
+  const c1Val = inputCustomSize1 && inputCustomSize1.value.trim() ? inputCustomSize1.value.trim() : null;
+  const c2Val = inputCustomSize2 && inputCustomSize2.value.trim() ? inputCustomSize2.value.trim() : null;
+  const c3Val = inputCustomSize3 && inputCustomSize3.value.trim() ? inputCustomSize3.value.trim() : null;
+  const cp1Val = inputCustomPrice1 && inputCustomPrice1.value ? parseFloat(inputCustomPrice1.value) : null;
+  const cp2Val = inputCustomPrice2 && inputCustomPrice2.value ? parseFloat(inputCustomPrice2.value) : null;
+  const cp3Val = inputCustomPrice3 && inputCustomPrice3.value ? parseFloat(inputCustomPrice3.value) : null;
+
+  const availableSizesArray = [c1Val, c2Val, c3Val].filter(Boolean);
+
   const inputPack1Buy = document.getElementById('best_value_pack_1_buy');
   const inputPack1Get = document.getElementById('best_value_pack_1_get');
   const inputPack1Title = document.getElementById('best_value_pack_1_title');
@@ -636,38 +800,70 @@ async function handleFormSubmit(e) {
   const inputPack3Title = document.getElementById('best_value_pack_3_title');
   const inputPack3Sub = document.getElementById('best_value_pack_3_subtitle');
 
+  const p1BuyVal = inputPack1Buy && inputPack1Buy.value ? parseInt(inputPack1Buy.value) : (showBestValuePacksVal ? 1 : null);
+  const p1GetVal = inputPack1Get && inputPack1Get.value ? parseInt(inputPack1Get.value) : (showBestValuePacksVal ? 2 : null);
+  const p1TitleVal = (inputPack1Title && inputPack1Title.value.trim() && inputPack1Title.value.trim() !== `Buy ${p1BuyVal} → Get ${p1GetVal} FREE`) ? inputPack1Title.value.trim() : null;
+  const p1SubVal = (inputPack1Sub && inputPack1Sub.value.trim() && inputPack1Sub.value.trim() !== `🛒 Add ${p1BuyVal + p1GetVal} posters`) ? inputPack1Sub.value.trim() : null;
+
+  const p2BuyVal = inputPack2Buy && inputPack2Buy.value ? parseInt(inputPack2Buy.value) : (showBestValuePacksVal ? 2 : null);
+  const p2GetVal = inputPack2Get && inputPack2Get.value ? parseInt(inputPack2Get.value) : (showBestValuePacksVal ? 4 : null);
+  const p2TitleVal = (inputPack2Title && inputPack2Title.value.trim() && inputPack2Title.value.trim() !== `Buy ${p2BuyVal} → Get ${p2GetVal} FREE`) ? inputPack2Title.value.trim() : null;
+  const p2SubVal = (inputPack2Sub && inputPack2Sub.value.trim() && inputPack2Sub.value.trim() !== `🛒 Add ${p2BuyVal + p2GetVal} posters`) ? inputPack2Sub.value.trim() : null;
+
+  const p3BuyVal = inputPack3Buy && inputPack3Buy.value ? parseInt(inputPack3Buy.value) : (showBestValuePacksVal ? 3 : null);
+  const p3GetVal = inputPack3Get && inputPack3Get.value ? parseInt(inputPack3Get.value) : (showBestValuePacksVal ? 9 : null);
+  const p3TitleVal = (inputPack3Title && inputPack3Title.value.trim() && inputPack3Title.value.trim() !== `Buy ${p3BuyVal} → Get ${p3GetVal} FREE`) ? inputPack3Title.value.trim() : null;
+  const p3SubVal = (inputPack3Sub && inputPack3Sub.value.trim() && inputPack3Sub.value.trim() !== `🛒 Add ${p3BuyVal + p3GetVal} posters`) ? inputPack3Sub.value.trim() : null;
+
   // Construct payload with dynamic rating and gallery
   const productPayload = {
     title: inputTitle.value,
     slug: inputSlug.value,
     short_description: (typeof inputShortDesc !== 'undefined' && inputShortDesc && inputShortDesc.value) ? inputShortDesc.value : "",
     description: (typeof inputDesc !== 'undefined' && inputDesc && inputDesc.value) ? inputDesc.value : "",
-    price: parseFloat(inputPrice.value),
+    price: (cp1Val !== null) 
+      ? cp1Val 
+      : ((inputPriceA5 && inputPriceA5.value) 
+          ? parseFloat(inputPriceA5.value) 
+          : (sizeVariants.length > 0 && sizeVariants[0].price 
+              ? sizeVariants[0].price 
+              : (inputPrice && inputPrice.value ? parseFloat(inputPrice.value) : 89))),
     discount_price: inputDiscountPrice.value ? parseFloat(inputDiscountPrice.value) : null,
     price_a5: inputPriceA5 && inputPriceA5.value ? parseFloat(inputPriceA5.value) : null,
     price_a4: inputPriceA4 && inputPriceA4.value ? parseFloat(inputPriceA4.value) : null,
     price_a3: inputPriceA3 && inputPriceA3.value ? parseFloat(inputPriceA3.value) : null,
+    allow_size_variants: inputAllowSizeVariants ? inputAllowSizeVariants.checked : true,
+    enable_a5: inputEnableA5 ? inputEnableA5.checked : true,
+    enable_a4: inputEnableA4 ? inputEnableA4.checked : true,
+    enable_a3: inputEnableA3 ? inputEnableA3.checked : true,
+    custom_size_1: c1Val,
+    custom_price_1: cp1Val,
+    custom_size_2: c2Val,
+    custom_price_2: cp2Val,
+    custom_size_3: c3Val,
+    custom_price_3: cp3Val,
+    available_sizes: availableSizesArray,
     category: finalCategory,
     show_best_value_packs: showBestValuePacksVal,
-    best_value_pack_1_buy: inputPack1Buy && inputPack1Buy.value ? parseInt(inputPack1Buy.value) : null,
-    best_value_pack_1_get: inputPack1Get && inputPack1Get.value ? parseInt(inputPack1Get.value) : null,
-    best_value_pack_1_title: inputPack1Title && inputPack1Title.value.trim() ? inputPack1Title.value.trim() : null,
-    best_value_pack_1_subtitle: inputPack1Sub && inputPack1Sub.value.trim() ? inputPack1Sub.value.trim() : null,
-    best_value_pack_2_buy: inputPack2Buy && inputPack2Buy.value ? parseInt(inputPack2Buy.value) : null,
-    best_value_pack_2_get: inputPack2Get && inputPack2Get.value ? parseInt(inputPack2Get.value) : null,
-    best_value_pack_2_title: inputPack2Title && inputPack2Title.value.trim() ? inputPack2Title.value.trim() : null,
-    best_value_pack_2_subtitle: inputPack2Sub && inputPack2Sub.value.trim() ? inputPack2Sub.value.trim() : null,
-    best_value_pack_3_buy: inputPack3Buy && inputPack3Buy.value ? parseInt(inputPack3Buy.value) : null,
-    best_value_pack_3_get: inputPack3Get && inputPack3Get.value ? parseInt(inputPack3Get.value) : null,
-    best_value_pack_3_title: inputPack3Title && inputPack3Title.value.trim() ? inputPack3Title.value.trim() : null,
-    best_value_pack_3_subtitle: inputPack3Sub && inputPack3Sub.value.trim() ? inputPack3Sub.value.trim() : null,
+    best_value_pack_1_buy: p1BuyVal,
+    best_value_pack_1_get: p1GetVal,
+    best_value_pack_1_title: p1TitleVal,
+    best_value_pack_1_subtitle: p1SubVal,
+    best_value_pack_2_buy: p2BuyVal,
+    best_value_pack_2_get: p2GetVal,
+    best_value_pack_2_title: p2TitleVal,
+    best_value_pack_2_subtitle: p2SubVal,
+    best_value_pack_3_buy: p3BuyVal,
+    best_value_pack_3_get: p3GetVal,
+    best_value_pack_3_title: p3TitleVal,
+    best_value_pack_3_subtitle: p3SubVal,
     subcategory: "3D Creation",
     tags: ["3dprint", "premium", "home-decor"],
     thumbnail: thumbUrl,
     gallery: galleryArray,
     videos: [],
     available_colors: ["Classic Grey", "Frost White"],
-    available_sizes: ["Standard"],
+    available_sizes: availableSizesArray,
     material: inputMaterial && inputMaterial.value ? inputMaterial.value : "Premium PLA+",
     print_quality: "0.16mm Fine",
     production_time: inputProdTime.value,
@@ -683,7 +879,7 @@ async function handleFormSubmit(e) {
     pinned_to_top: inputPinnedToTop ? inputPinnedToTop.checked : false,
     has_custom_options: inputHasCustomOptions ? inputHasCustomOptions.checked : false,
     allow_photo_upload: inputAllowPhotoUpload ? inputAllowPhotoUpload.checked : false,
-    allow_size_variants: inputAllowSizeVariants ? inputAllowSizeVariants.checked : false,
+    allow_size_variants: inputAllowSizeVariants ? inputAllowSizeVariants.checked : true,
     size_variants: getSizeVariantsData(),
     allow_quantity: inputAllowQuantity ? inputAllowQuantity.checked : true,
     disable_cod: inputDisableCod ? inputDisableCod.checked : false,
@@ -717,6 +913,11 @@ async function handleFormSubmit(e) {
       }
       throw new Error(errorMsg);
     }
+
+    // Save template for pre-populating future Add Product forms
+    try {
+      localStorage.setItem('mwm_last_product_template', JSON.stringify(productPayload));
+    } catch (e) {}
 
     showToast(isEditing ? "Product updated!" : "New product published!");
     closeDrawer();

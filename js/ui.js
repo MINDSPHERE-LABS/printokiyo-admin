@@ -78,6 +78,14 @@ function setupEventListeners() {
     });
   }
 
+  const inputShowBestValuePacks = document.getElementById('show_best_value_packs');
+  const bestValuePacksContainer = document.getElementById('best-value-packs-custom-container');
+  if (inputShowBestValuePacks && bestValuePacksContainer) {
+    inputShowBestValuePacks.addEventListener('change', (e) => {
+      bestValuePacksContainer.style.display = e.target.checked ? 'flex' : 'none';
+    });
+  }
+
   if (inputHasCustomOptions) {
     inputHasCustomOptions.addEventListener('change', (e) => {
       if (customOptionsExpand) {
@@ -88,8 +96,31 @@ function setupEventListeners() {
 
   if (inputAllowSizeVariants) {
     inputAllowSizeVariants.addEventListener('change', (e) => {
+      const wrapper = document.getElementById('size-options-wrapper');
+      if (wrapper) {
+        wrapper.style.display = e.target.checked ? 'flex' : 'none';
+      }
       if (sizeVariantsContainer) {
         sizeVariantsContainer.style.display = e.target.checked ? 'flex' : 'none';
+      }
+    });
+  }
+
+  const inputEnableStandardSizes = document.getElementById('enable_standard_sizes');
+  if (inputEnableStandardSizes) {
+    inputEnableStandardSizes.addEventListener('change', (e) => {
+      const standardWrapper = document.getElementById('standard-sizes-wrapper');
+      if (standardWrapper) {
+        standardWrapper.style.display = e.target.checked ? 'flex' : 'none';
+      }
+      // When group toggle is turned OFF, uncheck each individual size toggle too
+      if (!e.target.checked) {
+        const a5 = document.getElementById('enable_a5');
+        const a4 = document.getElementById('enable_a4');
+        const a3 = document.getElementById('enable_a3');
+        if (a5) a5.checked = false;
+        if (a4) a4.checked = false;
+        if (a3) a3.checked = false;
       }
     });
   }

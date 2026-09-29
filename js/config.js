@@ -36,7 +36,8 @@ function getAdminHeaders() {
   const token = sessionStorage.getItem('printokiyo_admin_token') || sessionStorage.getItem('mwm_admin_token') || '';
   return {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${token}`,
+    'x-admin-key': 'printokiyo_admin_secret_key_2026'
   };
 }
 

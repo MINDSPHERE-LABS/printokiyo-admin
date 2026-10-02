@@ -145,6 +145,24 @@
       </button>
     </div>
 
+    <!-- Product Search Bar by SKU / Name -->
+    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+      <div style="position: relative; flex: 1; min-width: 280px; max-width: 520px;">
+        <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          id="product-search" 
+          placeholder="🔍 Search products by SKU (e.g. MWM-5775), Name, or Category..." 
+          style="width: 100%; padding: 10px 36px 10px 38px; font-size: 12.5px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); color: var(--text-main); font-weight: 600; outline: none; box-sizing: border-box;"
+        >
+        <button id="btn-clear-product-search" type="button" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none; background: none; border: none; font-size: 14px; color: var(--text-muted); cursor: pointer; padding: 2px 6px;">✕</button>
+      </div>
+      <div id="product-search-count" style="font-size: 11px; font-weight: 700; color: var(--text-muted);"></div>
+    </div>
+
     <!-- Category Filter Bar -->
     <div id="admin-category-filter-bar" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px; scrollbar-width: thin;"></div>
 

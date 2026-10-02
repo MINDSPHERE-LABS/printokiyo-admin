@@ -290,14 +290,20 @@ function renderAdminCategoryFilterBar() {
   });
 }
 
+// Global Product Search Query State
+let productSearchQuery = '';
+
 // Render Products Category-Wise Grid
 function renderProducts() {
   renderAdminCategoryFilterBar();
   productsView.innerHTML = '';
   
+  const searchCountEl = document.getElementById('product-search-count');
+
   if (!products || products.length === 0) {
     productsView.classList.add('hidden');
     if (emptyState) emptyState.classList.remove('hidden');
+    if (searchCountEl) searchCountEl.innerText = '';
     return;
   }
 
@@ -310,10 +316,32 @@ function renderProducts() {
     filteredProducts = products.filter(p => (p.category && p.category.trim() ? p.category.trim() : 'General') === selectedAdminCategory);
   }
 
+  // Filter products by SKU, Name, Category, or Tags Search Query
+  if (productSearchQuery) {
+    const q = productSearchQuery.toLowerCase().trim();
+    filteredProducts = filteredProducts.filter(p => {
+      const skuVal = (p.SKU || p.sku || '').toLowerCase();
+      const titleVal = (p.title || '').toLowerCase();
+      const catVal = (p.category || '').toLowerCase();
+      const tagsVal = Array.isArray(p.tags) ? p.tags.join(' ').toLowerCase() : '';
+      return skuVal.includes(q) || titleVal.includes(q) || catVal.includes(q) || tagsVal.includes(q);
+    });
+
+    if (searchCountEl) {
+      searchCountEl.innerText = `Found ${filteredProducts.length} product${filteredProducts.length === 1 ? '' : 's'}`;
+    }
+  } else {
+    if (searchCountEl) {
+      searchCountEl.innerText = '';
+    }
+  }
+
   if (filteredProducts.length === 0) {
     productsView.innerHTML = `
-      <div style="text-align: center; padding: 30px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 12px; font-weight: 600;">
-        No products found in category "${escapeHTML(selectedAdminCategory)}".
+      <div style="text-align: center; padding: 40px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 13px; font-weight: 600;">
+        ${productSearchQuery 
+          ? `🔍 No products found matching "<strong>${escapeHTML(productSearchQuery)}</strong>"${selectedAdminCategory !== 'ALL' ? ` in category "${escapeHTML(selectedAdminCategory)}"` : ''}.` 
+          : `No products found in category "${escapeHTML(selectedAdminCategory)}".`}
       </div>
     `;
     return;
@@ -356,6 +384,7 @@ function renderProducts() {
       const isOutOfStock = product.stock <= 0;
       const hasDiscount = Boolean(product.discount_price && product.discount_price < product.price);
       const discountPercent = hasDiscount ? Math.round(((product.price - product.discount_price) / product.price) * 100) : 0;
+      const skuDisplay = product.SKU || product.sku || 'N/A';
       
       const card = document.createElement('div');
       card.className = 'product-card';
@@ -373,9 +402,14 @@ function renderProducts() {
         </div>
         
         <div class="card-details">
-          <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">
-            ${escapeHTML(product.category || 'General')}
-          </span>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
+            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; display: inline-block;">
+              ${escapeHTML(product.category || 'General')}
+            </span>
+            <span class="product-sku-badge" style="font-family: monospace; font-size: 9.5px; font-weight: 800; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.4px;" title="Product SKU Code">
+              🏷️ SKU: ${escapeHTML(skuDisplay)}
+            </span>
+          </div>
           <h4 class="card-title" title="${escapeHTML(product.title)}">${escapeHTML(product.title)}</h4>
           <div class="card-info" style="flex-direction: column; align-items: flex-start; gap: 4px;">
             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -601,7 +635,7 @@ function openEditDrawer(id) {
   inputId.value = product.id || product._id;
   inputTitle.value = product.title || '';
   inputSlug.value = product.slug || '';
-  inputSku.value = product.SKU || '';
+  inputSku.value = product.SKU || product.sku || '';
   if (inputShortDesc) inputShortDesc.value = product.short_description || '';
   if (inputDesc) inputDesc.value = product.description || '';
   if (inputMaterial) inputMaterial.value = product.material || '';
@@ -868,7 +902,8 @@ async function handleFormSubmit(e) {
     print_quality: "0.16mm Fine",
     production_time: inputProdTime.value,
     stock: parseInt(inputStock.value),
-    SKU: inputSku.value,
+    SKU: inputSku && inputSku.value ? inputSku.value.trim() : '',
+    sku: inputSku && inputSku.value ? inputSku.value.trim() : '',
     weight: 250.0,
     dimensions: inputDimensions && inputDimensions.value ? inputDimensions.value : "Standard Size",
     shipping_weight: 400.0,
@@ -952,5 +987,28 @@ async function handleDeleteProduct(id) {
   } catch (err) {
     console.error(err);
     showToast(`Delete failed: ${err.message}`);
+  }
+}
+
+// Wire up Product Search Bar input and clear button
+function setupProductSearch() {
+  const searchInput = document.getElementById('product-search');
+  const btnClearSearch = document.getElementById('btn-clear-product-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      productSearchQuery = e.target.value.trim();
+      if (btnClearSearch) {
+        btnClearSearch.style.display = productSearchQuery ? 'block' : 'none';
+      }
+      renderProducts();
+    });
+  }
+  if (btnClearSearch) {
+    btnClearSearch.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      productSearchQuery = '';
+      btnClearSearch.style.display = 'none';
+      renderProducts();
+    });
   }
 }

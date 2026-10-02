@@ -194,4 +194,8 @@ function setupEventListeners() {
   if (btnCloseInvoice) btnCloseInvoice.addEventListener('click', closeInvoice);
   if (invoiceCloseBackdrop) invoiceCloseBackdrop.addEventListener('click', closeInvoice);
   if (btnPrintInvoice) btnPrintInvoice.addEventListener('click', printInvoice);
+
+  if (typeof setupProductSearch === 'function') {
+    setupProductSearch();
+  }
 }

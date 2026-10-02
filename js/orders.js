@@ -120,6 +120,7 @@ function renderOrders(ordersList, force = false) {
             ${item.thumbnail ? `<img src="${getImageUrl(item.thumbnail)}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;" alt="">` : ''}
             <div style="display: flex; flex-direction: column; gap: 2px;">
               <span style="font-weight: 700; color: var(--text-main); font-size: 11.5px; line-height: 1.2;" title="${escapeHTML(item.title)}">${escapeHTML(item.title)}</span>
+              ${(item.sku || item.SKU) ? `<span style="font-family: monospace; font-size: 9.5px; font-weight: 800; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 1px 5px; border-radius: 4px; display: inline-block; width: fit-content; margin-top: 1px;">🏷️ SKU: ${escapeHTML(item.sku || item.SKU)}</span>` : ''}
               ${item.selected_size ? `<span style="font-size: 9.5px; color: #0284c7; font-weight: 800;">📐 Size: ${escapeHTML(item.selected_size)}</span>` : ''}
               ${item.custom_photo ? `
                 <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
@@ -283,7 +284,11 @@ function handleOrderSearch(e) {
       (o.phone && o.phone.toLowerCase().includes(query)) ||
       (o.address && o.address.toLowerCase().includes(query)) ||
       (o.payment_method && o.payment_method.toLowerCase().includes(query)) ||
-      (o.items && o.items.some(item => item.title && item.title.toLowerCase().includes(query)))
+      (o.items && o.items.some(item => 
+        (item.title && item.title.toLowerCase().includes(query)) ||
+        (item.sku && item.sku.toLowerCase().includes(query)) ||
+        (item.SKU && item.SKU.toLowerCase().includes(query))
+      ))
     );
     renderOrders(filtered);
   }
@@ -352,7 +357,11 @@ function openInvoice(orderId) {
 
     row.innerHTML = `
       <td class="text-center">${slNo++}</td>
-      <td style="font-weight: 700; color: #111111;">${escapeHTML(item.title)}</td>
+      <td style="font-weight: 700; color: #111111;">
+        ${escapeHTML(item.title)}
+        ${(item.sku || item.SKU) ? `<div style="font-family: monospace; font-size: 10px; color: #0369a1; font-weight: 700; margin-top: 2px;">SKU: ${escapeHTML(item.sku || item.SKU)}</div>` : ''}
+        ${item.selected_size ? `<div style="font-size: 10px; color: #64748b; font-weight: 600;">Size: ${escapeHTML(item.selected_size)}</div>` : ''}
+      </td>
       <td class="text-right">₹${rate.toLocaleString('en-IN')}</td>
       <td class="text-center">${qty}</td>
       <td class="text-right">₹${amount.toLocaleString('en-IN')}</td>
@@ -435,7 +444,7 @@ function handleExportOrdersExcel() {
 
   const rows = [headers];
   orders.forEach(o => {
-    const itemsSummary = (o.items || []).map(it => `${it.title} (x${it.quantity || 1})`).join(' | ');
+    const itemsSummary = (o.items || []).map(it => `${it.title}${(it.sku || it.SKU) ? ` [SKU: ${it.sku || it.SKU}]` : ''} (x${it.quantity || 1})`).join(' | ');
     const formattedDate = o.created_at
       ? new Date(o.created_at).toLocaleString('en-IN')
       : (o.date || '');

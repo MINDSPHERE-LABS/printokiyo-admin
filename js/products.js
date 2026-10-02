@@ -189,7 +189,7 @@ function populateCategoryDropdown(selectedVal = '') {
   const newCategoryInput = document.getElementById('new_category_input');
   if (!select) return;
 
-  const defaultCats = [
+  const posterCats = [
     "Anime & Gaming",
     "Superhero",
     "Supercars",
@@ -197,8 +197,14 @@ function populateCategoryDropdown(selectedVal = '') {
     "Cricket",
     "Devotional",
     "Gym & Fitness",
-    "Music",
-    "Wall Sets",
+    "Music"
+  ];
+
+  const wallSetCats = [
+    "Wall Sets"
+  ];
+
+  const collageCats = [
     "Cricket Collage Block Kits",
     "Football Collage",
     "God Collage/Block kit",
@@ -206,36 +212,72 @@ function populateCategoryDropdown(selectedVal = '') {
     "Supercar Colage",
     "Movie Collage",
     "Motivation Collage",
-    "Collage/Block Kits",
+    "Collage/Block Kits"
+  ];
+
+  const otherCats = [
     "Custom Poloride Photo",
+    "Customization",
     "Headphone Stands",
     "Lithophane",
     "Home Decor",
     "Desk Setup"
   ];
 
-  const categorySet = new Set(defaultCats);
+  const allDefaults = [...posterCats, ...wallSetCats, ...collageCats, ...otherCats];
+  const customCats = new Set();
+
   if (products && Array.isArray(products)) {
     products.forEach(p => {
-      if (p.category && p.category.trim()) {
-        categorySet.add(p.category.trim());
+      if (p.category && p.category.trim() && !allDefaults.includes(p.category.trim())) {
+        customCats.add(p.category.trim());
       }
     });
   }
 
-  if (selectedVal && selectedVal !== '__NEW__' && !categorySet.has(selectedVal)) {
-    categorySet.add(selectedVal);
+  if (selectedVal && selectedVal !== '__NEW__' && !allDefaults.includes(selectedVal)) {
+    customCats.add(selectedVal);
   }
 
-  const categoryOptions = Array.from(categorySet).map(cat => 
-    `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`
-  );
-  categoryOptions.push(`<option value="__NEW__">➕ Create New Category...</option>`);
+  let html = '';
+  html += `<optgroup label="── Posters (Split & Single) ──">`;
+  posterCats.forEach(cat => {
+    html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
+  });
+  html += `</optgroup>`;
 
-  select.innerHTML = categoryOptions.join('');
+  html += `<optgroup label="── Wall Sets ──">`;
+  wallSetCats.forEach(cat => {
+    html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
+  });
+  html += `</optgroup>`;
+
+  html += `<optgroup label="── Collage / Block Kits ──">`;
+  collageCats.forEach(cat => {
+    html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
+  });
+  html += `</optgroup>`;
+
+  html += `<optgroup label="── Custom & Other ──">`;
+  otherCats.forEach(cat => {
+    html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
+  });
+  html += `</optgroup>`;
+
+  if (customCats.size > 0) {
+    html += `<optgroup label="── Custom Categories ──">`;
+    Array.from(customCats).forEach(cat => {
+      html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  html += `<option value="__NEW__">➕ Create New Category...</option>`;
+
+  select.innerHTML = html;
 
   if (selectedVal) {
-    if (categorySet.has(selectedVal)) {
+    if (allDefaults.includes(selectedVal) || customCats.has(selectedVal)) {
       select.value = selectedVal;
       if (newCategoryContainer) newCategoryContainer.style.display = 'none';
     } else {

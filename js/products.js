@@ -189,15 +189,26 @@ function populateCategoryDropdown(selectedVal = '') {
   const newCategoryInput = document.getElementById('new_category_input');
   if (!select) return;
 
-  const posterCats = [
-    "Anime & Gaming",
-    "Superhero",
-    "Supercars",
-    "Superbike",
-    "Cricket",
-    "Devotional",
-    "Gym & Fitness",
-    "Music"
+  const splitPosterCats = [
+    "Supercar Split Posters",
+    "Anime Split Posters",
+    "Superhero Split Posters",
+    "Superbike Split Posters",
+    "Cricket Split Posters",
+    "Devotional Split Posters",
+    "Gym & Fitness Split Posters",
+    "Music Split Posters"
+  ];
+
+  const singlePosterCats = [
+    "Supercar Single Poster",
+    "Anime Single Poster",
+    "Superhero Single Poster",
+    "Superbike Single Poster",
+    "Cricket Single Poster",
+    "Devotional Single Poster",
+    "Gym & Fitness Single Poster",
+    "Music Single Poster"
   ];
 
   const wallSetCats = [
@@ -224,7 +235,7 @@ function populateCategoryDropdown(selectedVal = '') {
     "Desk Setup"
   ];
 
-  const allDefaults = [...posterCats, ...wallSetCats, ...collageCats, ...otherCats];
+  const allDefaults = [...splitPosterCats, ...singlePosterCats, ...wallSetCats, ...collageCats, ...otherCats];
   const customCats = new Set();
 
   if (products && Array.isArray(products)) {
@@ -240,8 +251,14 @@ function populateCategoryDropdown(selectedVal = '') {
   }
 
   let html = '';
-  html += `<optgroup label="── Posters (Split & Single) ──">`;
-  posterCats.forEach(cat => {
+  html += `<optgroup label="── Split Posters ──">`;
+  splitPosterCats.forEach(cat => {
+    html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
+  });
+  html += `</optgroup>`;
+
+  html += `<optgroup label="── Single Posters ──">`;
+  singlePosterCats.forEach(cat => {
     html += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
   });
   html += `</optgroup>`;

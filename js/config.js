@@ -3,34 +3,15 @@
 const hostname = window.location.hostname || 'localhost';
 const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
 
-// --- Dual-Backend Failover ---
-const PRIMARY_BACKEND = 'https://printokiyo-backend.onrender.com';
-const FALLBACK_BACKEND = 'https://api.printokiyo.com';
+// --- Backend URLs ---
+const PRODUCTION_BACKEND = 'https://printokiyo-backend.onrender.com';
 const LOCAL_BACKEND = `http://${hostname}:8000`;
 
-let BACKEND_BASE = isLocal ? LOCAL_BACKEND : PRIMARY_BACKEND;
+let BACKEND_BASE = isLocal ? LOCAL_BACKEND : PRODUCTION_BACKEND;
 let API_BASE_URL = `${BACKEND_BASE}/api`;
 let HEALTH_URL = `${BACKEND_BASE}/health`;
 
-// Silent health check: if primary is down, auto-switch to fallback
 let _backendReady = Promise.resolve();
-if (!isLocal) {
-  _backendReady = (async () => {
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 3000);
-      const res = await fetch(`${PRIMARY_BACKEND}/health`, { method: 'HEAD', signal: controller.signal });
-      clearTimeout(timeout);
-      if (!res.ok) throw new Error();
-      console.log('[PrintOkiyo Admin] Using primary backend:', PRIMARY_BACKEND);
-    } catch {
-      BACKEND_BASE = FALLBACK_BACKEND;
-      API_BASE_URL = `${FALLBACK_BACKEND}/api`;
-      HEALTH_URL = `${FALLBACK_BACKEND}/health`;
-      console.log('[PrintOkiyo Admin] Primary unreachable, using fallback:', FALLBACK_BACKEND);
-    }
-  })();
-}
 
 function getAdminHeaders() {
   const token = sessionStorage.getItem('printokiyo_admin_token') || sessionStorage.getItem('mwm_admin_token') || '';

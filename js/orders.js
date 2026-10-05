@@ -140,6 +140,20 @@ function renderOrders(ordersList, force = false) {
     const waMsgText = encodeURIComponent(`Hi ${order.name || 'Customer'}! Your PrintOkiyo order #${order.order_id} has been dispatched. 🚚 Tracking ID: ${existingTrackingId || '[Tracking ID]'}`);
     const waDirectUrl = `https://wa.me/${waPhone}?text=${waMsgText}`;
 
+    // Extract all item SKUs for comma-separated display in order row
+    const skuList = [];
+    if (Array.isArray(order.items)) {
+      order.items.forEach(it => {
+        const s = (it.sku || it.SKU || '').trim();
+        if (s && !skuList.includes(s)) {
+          skuList.push(s);
+        }
+      });
+    }
+    const skusCommaSeparated = (order.sku_summary && order.sku_summary.trim()) 
+      ? order.sku_summary.trim() 
+      : (skuList.length > 0 ? skuList.join(', ') : (order.SKU || order.sku || ''));
+
     tr.innerHTML = `
       <td>
         <div style="display: flex; align-items: center; gap: 6px;">
@@ -151,6 +165,20 @@ function renderOrders(ordersList, force = false) {
       <td>
         <div style="font-weight: 700; color: var(--text-main);">${escapeHTML(order.name)}</div>
         <div style="font-size: 10px; color: var(--text-muted);">${escapeHTML(order.email || '')}</div>
+      </td>
+      <td>
+        <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start; min-width: 120px;">
+          ${skusCommaSeparated ? `
+            <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 800; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; line-height: 1.4; word-break: break-word;" title="Order SKUs to Print">
+              🏷️ ${escapeHTML(skusCommaSeparated)}
+            </div>
+            <button type="button" onclick="navigator.clipboard.writeText('${escapeHTML(skusCommaSeparated).replace(/'/g, "\\'")}'); showToast('📋 Copied SKUs: ${escapeHTML(skusCommaSeparated).replace(/'/g, "\\'")}');" style="font-size: 9.5px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 2px 6px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Copy all SKUs to clipboard">
+              📋 Copy SKU
+            </button>
+          ` : `
+            <span style="font-size: 10px; color: var(--text-muted); font-style: italic;">No SKU</span>
+          `}
+        </div>
       </td>
       <td>
         <div style="max-width: 220px; max-height: 100px; overflow-y: auto;">
@@ -284,6 +312,8 @@ function handleOrderSearch(e) {
       (o.phone && o.phone.toLowerCase().includes(query)) ||
       (o.address && o.address.toLowerCase().includes(query)) ||
       (o.payment_method && o.payment_method.toLowerCase().includes(query)) ||
+      (o.sku_summary && o.sku_summary.toLowerCase().includes(query)) ||
+      (Array.isArray(o.skus) && o.skus.some(s => s && s.toLowerCase().includes(query))) ||
       (o.items && o.items.some(item => 
         (item.title && item.title.toLowerCase().includes(query)) ||
         (item.sku && item.sku.toLowerCase().includes(query)) ||
@@ -341,6 +371,29 @@ function openInvoice(orderId) {
   document.getElementById('inv-order-date').innerText = formattedDate;
   document.getElementById('inv-invoice-id').innerText = order.order_id;
   document.getElementById('inv-invoice-date').innerText = formattedDate;
+
+  // Extract all SKUs for invoice banner
+  const invSkuList = [];
+  if (Array.isArray(order.items)) {
+    order.items.forEach(it => {
+      const s = (it.sku || it.SKU || '').trim();
+      if (s && !invSkuList.includes(s)) invSkuList.push(s);
+    });
+  }
+  const invSkusComma = (order.sku_summary && order.sku_summary.trim())
+    ? order.sku_summary.trim()
+    : (invSkuList.length > 0 ? invSkuList.join(', ') : (order.SKU || order.sku || 'N/A'));
+
+  const invSkusEl = document.getElementById('inv-skus-text');
+  if (invSkusEl) invSkusEl.innerText = invSkusComma;
+
+  const btnCopyInvSkus = document.getElementById('btn-copy-inv-skus');
+  if (btnCopyInvSkus) {
+    btnCopyInvSkus.onclick = () => {
+      navigator.clipboard.writeText(invSkusComma);
+      showToast(`📋 Copied SKUs: ${invSkusComma}`);
+    };
+  }
 
   const itemsBody = document.getElementById('invoice-items-body');
   itemsBody.innerHTML = '';
@@ -437,13 +490,24 @@ function handleExportOrdersExcel() {
   }
 
   const headers = [
-    "Order ID", "Date", "Customer Name", "Phone", "Email",
+    "Order ID", "Date", "Customer Name", "SKU Codes", "Phone", "Email",
     "Shipping Address", "Items Summary", "Grand Total (₹)",
     "Payment Method", "Payment Status", "Order Status", "Tracking ID / AWB"
   ];
 
   const rows = [headers];
   orders.forEach(o => {
+    const skuList = [];
+    if (Array.isArray(o.items)) {
+      o.items.forEach(it => {
+        const s = (it.sku || it.SKU || '').trim();
+        if (s && !skuList.includes(s)) skuList.push(s);
+      });
+    }
+    const skusCommaSeparated = (o.sku_summary && o.sku_summary.trim())
+      ? o.sku_summary.trim()
+      : (skuList.length > 0 ? skuList.join(', ') : (o.SKU || o.sku || ''));
+
     const itemsSummary = (o.items || []).map(it => `${it.title}${(it.sku || it.SKU) ? ` [SKU: ${it.sku || it.SKU}]` : ''} (x${it.quantity || 1})`).join(' | ');
     const formattedDate = o.created_at
       ? new Date(o.created_at).toLocaleString('en-IN')
@@ -453,6 +517,7 @@ function handleExportOrdersExcel() {
       o.order_id || '',
       formattedDate,
       o.name || 'Guest',
+      skusCommaSeparated,
       o.phone || '',
       o.email || '',
       o.address || '',

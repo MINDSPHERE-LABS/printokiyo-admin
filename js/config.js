@@ -4,8 +4,8 @@ const hostname = window.location.hostname || 'localhost';
 const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
 
 // --- Dual-Backend Failover ---
-const PRIMARY_BACKEND = 'https://api.printokiyo.com';
-const FALLBACK_BACKEND = 'https://printokiyo-backend.onrender.com';
+const PRIMARY_BACKEND = 'https://printokiyo-backend.onrender.com';
+const FALLBACK_BACKEND = 'https://api.printokiyo.com';
 const LOCAL_BACKEND = `http://${hostname}:8000`;
 
 let BACKEND_BASE = isLocal ? LOCAL_BACKEND : PRIMARY_BACKEND;

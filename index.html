@@ -205,6 +205,7 @@
                 <th>Order ID</th>
                 <th>Date</th>
                 <th>Customer</th>
+                <th style="min-width: 130px;">SKU Code(s)</th>
                 <th>Ordered Items</th>
                 <th>Mobile</th>
                 <th>Address</th>
@@ -362,8 +363,11 @@
                 <input type="text" id="slug" required placeholder="e.g. goku-ultra-instinct-poster">
               </div>
               <div class="form-group">
-                <label for="SKU">SKU Code *</label>
-                <input type="text" id="SKU" required placeholder="e.g. MWM-POS-001">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label for="SKU" style="margin-bottom: 0;">SKU Code *</label>
+                  <span id="sku-auto-hint" style="font-size: 10px; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 1px 6px; border-radius: 4px;">⚡ Auto-Incremented</span>
+                </div>
+                <input type="text" id="SKU" required placeholder="e.g. MWM-001">
               </div>
             </div>
 
@@ -748,6 +752,14 @@
           <div><strong>Order Date:</strong> <span id="inv-order-date">01/01/2026</span></div>
           <div><strong>Invoice Number:</strong> <span id="inv-invoice-id">MWM-000000</span></div>
           <div><strong>Invoice Date:</strong> <span id="inv-invoice-date">01/01/2026</span></div>
+        </div>
+
+        <div id="inv-sku-banner" style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 8px 14px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; font-weight: 800; color: #0369a1; text-transform: uppercase;">🏷️ Print SKUs:</span>
+            <span id="inv-skus-text" style="font-family: monospace; font-size: 12px; font-weight: 800; color: #0284c7;">MWM-001</span>
+          </div>
+          <button type="button" id="btn-copy-inv-skus" style="font-size: 10px; font-weight: 700; background: #0284c7; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer;">📋 Copy SKUs</button>
         </div>
 
         <table class="invoice-table">

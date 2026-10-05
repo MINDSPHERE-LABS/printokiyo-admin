@@ -615,12 +615,48 @@ function resetForm() {
   renderFormImagePreviews();
 }
 
+// Calculate next auto-incremented SKU (e.g. MWM-001 ... MWM-009 ... MWM-010 ... MWM-101)
+function calculateNextProductSku() {
+  let maxNum = 0;
+  if (Array.isArray(products) && products.length > 0) {
+    products.forEach(p => {
+      const val = (p.SKU || p.sku || '').trim();
+      const match = val.match(/^MWM-0*(\d+)$/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (!isNaN(num)) {
+          // If < 1000, consider it part of sequential range (filters legacy random 1000-9999 numbers)
+          if (num < 1000) {
+            if (num > maxNum) maxNum = num;
+          } else if (maxNum >= 999 && num > maxNum) {
+            maxNum = num;
+          }
+        }
+      }
+    });
+  }
+  const nextNum = maxNum + 1;
+  return `MWM-${String(nextNum).padStart(3, '0')}`;
+}
+
 // Drawer visibility managers
 function openAddDrawer() {
   isEditing = false;
   resetForm();
   drawerTitle.innerText = "Add New Product";
-  inputSku.value = "MWM-" + Math.floor(1000 + Math.random() * 9000);
+  
+  // Auto-generate next sequential SKU (e.g. MWM-001 ... MWM-009 ... MWM-010 ... MWM-101)
+  inputSku.value = calculateNextProductSku();
+
+  // Also query backend API to guarantee sync with latest database state
+  fetch(`${API_BASE_URL}/products/next-sku`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (data && data.next_sku) {
+        inputSku.value = data.next_sku;
+      }
+    })
+    .catch(() => {});
 
   // Pre-fill form inputs with details from the last saved product template or latest catalog product
   try {

@@ -146,36 +146,45 @@ async function handleImageUpload(e) {
       formData.append('folder', targetFolder);
 
       try {
-        const token = sessionStorage.getItem('mwm_admin_token') || '';
+        const token = sessionStorage.getItem('printokiyo_admin_token') || sessionStorage.getItem('mwm_admin_token') || '';
         const res = await fetch(`${API_BASE_URL}/upload?folder=${encodeURIComponent(targetFolder)}`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'x-admin-key': 'printokiyo_admin_secret_key_2026'
           },
           body: formData
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.url) {
-            newUrls.push(data.url);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || `Upload failed with status ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data && data.url) {
+          if (data.storage === 'base64' || data.url.startsWith('data:image')) {
+            console.warn('[Admin Upload] Warning: saved as base64 because:', data.warning);
+            showToast(`Notice: Saved as base64 (${data.warning || 'R2 not ready'})`, 'info');
+          } else {
             console.log(`[Admin Upload] Successfully uploaded to Cloudflare R2 [${targetFolder}/]:`, data.url);
-            continue;
           }
+          newUrls.push(data.url);
+          continue;
         }
       } catch (uploadErr) {
-        console.warn('[Admin Upload] API upload failed, falling back to local base64:', uploadErr);
+        console.error('[Admin Upload] Upload failed:', uploadErr);
+        uploadStatusText.innerText = `Upload failed: ${uploadErr.message}`;
+        uploadStatusText.style.color = "var(--red)";
+        showToast(uploadErr.message, 'error');
+        return;
       }
-
-      // Fallback to base64 if API upload failed
-      const base64DataUrl = await compressImageToBase64(file);
-      newUrls.push(base64DataUrl);
     }
 
     currentFormImages = [...currentFormImages, ...newUrls];
     inputFile.value = ''; // Reset file input
     renderFormImagePreviews();
-    showToast(`Uploaded ${newUrls.length} image(s) to R2 folder "${targetFolder}/"!`);
+    showToast(`Uploaded ${newUrls.length} image(s) to folder "${targetFolder}/"!`);
     uploadStatusText.innerText = "";
   } catch (err) {
     console.error("Image processing error:", err);

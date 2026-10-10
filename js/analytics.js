@@ -48,6 +48,17 @@ async function loadAnalyticsAndUsers(silent = false) {
       if (statTotalUsers) statTotalUsers.innerText = (analyticsData.total_users || 0).toLocaleString('en-IN');
       if (statTotalOrders) statTotalOrders.innerText = (analyticsData.total_orders || 0).toLocaleString('en-IN');
 
+      // Update Real-Time Live Visitors
+      const liveCount = analyticsData.live_visitors ?? 0;
+      if (statLiveVisitors) statLiveVisitors.innerText = liveCount.toLocaleString('en-IN');
+      if (topLiveVisitorsCount) topLiveVisitorsCount.innerText = liveCount.toLocaleString('en-IN');
+      if (liveVisitorsSummaryText) {
+        liveVisitorsSummaryText.innerText = liveCount === 1 
+          ? '1 visitor browsing active right now' 
+          : `${liveCount} visitors browsing active right now`;
+      }
+      renderLivePagesBreakdown(analyticsData.live_page_breakdown || []);
+
       renderRevenueChart(analyticsData.monthly_chart || []);
     }
 
@@ -172,3 +183,74 @@ function handleUserSearch(e) {
     renderUsers(filtered);
   }
 }
+
+// Render Live Pages Breakdown List
+function renderLivePagesBreakdown(breakdown) {
+  if (!livePagesListContainer) return;
+
+  if (!breakdown || breakdown.length === 0) {
+    livePagesListContainer.innerHTML = `
+      <div style="color: var(--text-muted); font-size: 11.5px; font-style: italic; padding: 4px 0;">
+        No active visitors browsing the store right now.
+      </div>
+    `;
+    return;
+  }
+
+  let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+  breakdown.forEach(item => {
+    const pageLabel = item.page === '/' ? 'Home Page (Storefront)' : item.page;
+    html += `
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg-hover, #f8fafc); border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+        <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          <span style="width: 7px; height: 7px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 6px #10b981; flex-shrink: 0;"></span>
+          <code style="font-size: 12px; font-weight: 700; color: var(--text-main);">${escapeHTML(pageLabel)}</code>
+        </div>
+        <span style="font-size: 10.5px; font-weight: 800; background: #d1fae5; color: #047857; padding: 2px 10px; border-radius: 12px; flex-shrink: 0;">
+          ${item.count} ${item.count === 1 ? 'visitor' : 'visitors'}
+        </span>
+      </div>
+    `;
+  });
+  html += '</div>';
+  livePagesListContainer.innerHTML = html;
+}
+
+// Global real-time visitor polling for the header pill
+let globalLiveVisitorsInterval = null;
+
+function startGlobalLiveVisitorsPolling() {
+  if (globalLiveVisitorsInterval) return;
+
+  const fetchLive = async () => {
+    try {
+      const headers = getAdminHeaders();
+      const res = await fetch(`${API_BASE_URL}/admin/live-visitors`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        const count = data.live_count ?? 0;
+        if (topLiveVisitorsCount) topLiveVisitorsCount.innerText = count.toLocaleString('en-IN');
+        if (statLiveVisitors) statLiveVisitors.innerText = count.toLocaleString('en-IN');
+        if (liveVisitorsSummaryText) {
+          liveVisitorsSummaryText.innerText = count === 1 
+            ? '1 visitor browsing active right now' 
+            : `${count} visitors browsing active right now`;
+        }
+        if (livePagesListContainer && data.page_breakdown) {
+          renderLivePagesBreakdown(data.page_breakdown);
+        }
+      }
+    } catch {}
+  };
+
+  fetchLive();
+  globalLiveVisitorsInterval = setInterval(fetchLive, 5000);
+}
+
+function stopGlobalLiveVisitorsPolling() {
+  if (globalLiveVisitorsInterval) {
+    clearInterval(globalLiveVisitorsInterval);
+    globalLiveVisitorsInterval = null;
+  }
+}
+

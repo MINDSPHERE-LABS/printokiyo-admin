@@ -17,6 +17,7 @@ async function checkAdminAuthentication() {
     hideAdminLoginScreen(data.admin?.name || data.admin?.email || "Store Admin");
     loadProducts();
     loadSettings();
+    startGlobalLiveVisitorsPolling();
   } catch (err) {
     sessionStorage.removeItem('printokiyo_admin_token');
     sessionStorage.removeItem('mwm_admin_token');
@@ -75,6 +76,7 @@ async function handleAdminLoginSubmit(e) {
 
     loadProducts();
     loadSettings();
+    startGlobalLiveVisitorsPolling();
     switchTab('products');
   } catch (err) {
     console.error("Admin Login Error:", err);
@@ -93,6 +95,7 @@ function handleAdminLogout() {
   sessionStorage.removeItem('mwm_admin_token');
   stopOrdersAutoRefresh();
   stopAnalyticsAutoRefresh();
+  stopGlobalLiveVisitorsPolling();
   showAdminLoginScreen();
   showToast("Logged out of Admin Console.");
 }

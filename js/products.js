@@ -111,12 +111,29 @@ function compressImageToBase64(file, maxWidth = 1000, quality = 0.82) {
   });
 }
 
+// Update target R2 folder badge display in real-time
+function updateTargetR2FolderBadge() {
+  const badge = document.getElementById('target-r2-folder-badge');
+  if (!badge) return;
+  const skuVal = (inputSku && inputSku.value.trim()) ? inputSku.value.trim() : '';
+  const slugVal = (inputSlug && inputSlug.value.trim()) ? inputSlug.value.trim() : '';
+  const titleVal = (inputTitle && inputTitle.value.trim()) ? inputTitle.value.trim() : '';
+  const folder = skuVal || slugVal || (titleVal ? titleVal.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'products');
+  badge.textContent = `📁 Target: ${folder}/`;
+}
+
 // Handle Image Files Uploading to Cloudflare R2 via Backend API
 async function handleImageUpload(e) {
   const files = e.target.files;
   if (!files || files.length === 0) return;
 
-  uploadStatusText.innerText = `Uploading ${files.length} image(s) to Cloudflare R2...`;
+  // Determine target folder based on product SKU, slug, or title (e.g. MWM-001)
+  const skuVal = (inputSku && inputSku.value.trim()) ? inputSku.value.trim() : '';
+  const slugVal = (inputSlug && inputSlug.value.trim()) ? inputSlug.value.trim() : '';
+  const titleVal = (inputTitle && inputTitle.value.trim()) ? inputTitle.value.trim() : '';
+  const targetFolder = skuVal || slugVal || (titleVal ? titleVal.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'products');
+
+  uploadStatusText.innerText = `Uploading ${files.length} image(s) to R2 [${targetFolder}/]...`;
   uploadStatusText.style.color = "var(--text-muted)";
 
   const newUrls = [];
@@ -126,10 +143,11 @@ async function handleImageUpload(e) {
       const file = files[i];
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('folder', targetFolder);
 
       try {
         const token = sessionStorage.getItem('mwm_admin_token') || '';
-        const res = await fetch(`${API_BASE_URL}/upload`, {
+        const res = await fetch(`${API_BASE_URL}/upload?folder=${encodeURIComponent(targetFolder)}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -141,7 +159,7 @@ async function handleImageUpload(e) {
           const data = await res.json();
           if (data && data.url) {
             newUrls.push(data.url);
-            console.log('[Admin Upload] Successfully uploaded to Cloudflare R2:', data.url);
+            console.log(`[Admin Upload] Successfully uploaded to Cloudflare R2 [${targetFolder}/]:`, data.url);
             continue;
           }
         }
@@ -157,7 +175,7 @@ async function handleImageUpload(e) {
     currentFormImages = [...currentFormImages, ...newUrls];
     inputFile.value = ''; // Reset file input
     renderFormImagePreviews();
-    showToast(`Uploaded ${newUrls.length} image(s) to Cloudflare R2!`);
+    showToast(`Uploaded ${newUrls.length} image(s) to R2 folder "${targetFolder}/"!`);
     uploadStatusText.innerText = "";
   } catch (err) {
     console.error("Image processing error:", err);
@@ -647,6 +665,7 @@ function openAddDrawer() {
   
   // Auto-generate next sequential SKU (e.g. MWM-001 ... MWM-009 ... MWM-010 ... MWM-101)
   inputSku.value = calculateNextProductSku();
+  updateTargetR2FolderBadge();
 
   // Also query backend API to guarantee sync with latest database state
   fetch(`${API_BASE_URL}/products/next-sku`)
@@ -654,6 +673,7 @@ function openAddDrawer() {
     .then(data => {
       if (data && data.next_sku) {
         inputSku.value = data.next_sku;
+        updateTargetR2FolderBadge();
       }
     })
     .catch(() => {});
@@ -741,6 +761,7 @@ function openEditDrawer(id) {
   inputTitle.value = product.title || '';
   inputSlug.value = product.slug || '';
   inputSku.value = product.SKU || product.sku || '';
+  updateTargetR2FolderBadge();
   if (inputShortDesc) inputShortDesc.value = product.short_description || '';
   if (inputDesc) inputDesc.value = product.description || '';
   if (inputMaterial) inputMaterial.value = product.material || '';

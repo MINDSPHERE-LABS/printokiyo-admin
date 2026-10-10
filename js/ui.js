@@ -166,7 +166,20 @@ function setupEventListeners() {
     if (!isEditing) {
       inputSlug.value = generateSlug(e.target.value);
     }
+    if (typeof updateTargetR2FolderBadge === 'function') updateTargetR2FolderBadge();
   });
+
+  if (inputSku) {
+    inputSku.addEventListener('input', () => {
+      if (typeof updateTargetR2FolderBadge === 'function') updateTargetR2FolderBadge();
+    });
+  }
+
+  if (inputSlug) {
+    inputSlug.addEventListener('input', () => {
+      if (typeof updateTargetR2FolderBadge === 'function') updateTargetR2FolderBadge();
+    });
+  }
 
   inputFile.addEventListener('change', handleImageUpload);
 

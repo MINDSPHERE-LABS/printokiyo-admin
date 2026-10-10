@@ -65,8 +65,6 @@ const statTotalUsers = document.getElementById('stat-total-users');
 const statTotalOrders = document.getElementById('stat-total-orders');
 const statLiveVisitors = document.getElementById('stat-live-visitors');
 const topLiveVisitorsCount = document.getElementById('top-live-visitors-count');
-const liveVisitorsSummaryText = document.getElementById('live-visitors-summary-text');
-const livePagesListContainer = document.getElementById('live-pages-list-container');
 const revenueChartContainer = document.getElementById('revenue-chart-container');
 
 const invoiceModal = document.getElementById('invoice-modal');

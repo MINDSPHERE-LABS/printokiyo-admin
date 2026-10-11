@@ -125,7 +125,7 @@ function renderOrders(ordersList, force = false) {
               ${item.custom_photo ? `
                 <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
                   <a href="${getImageUrl(item.custom_photo)}" target="_blank" style="font-size: 9px; color: #041e42; font-weight: 800; text-decoration: none; background: #e0f2fe; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd;">👁️ View Photo</a>
-                  <button type="button" onclick="downloadCustomPhoto('${item.custom_photo.replace(/'/g, "\\'")}', 'Customer_Photo_Order_${order.order_id}.png')" style="font-size: 9px; color: #ffffff; font-weight: 800; border: none; background: #041e42; padding: 2px 6px; border-radius: 4px; cursor: pointer;" title="Download customer uploaded photo">📥 Download Photo</button>
+                  <button type="button" class="btn-download-order-photo" data-photo="${escapeHTML(item.custom_photo)}" data-filename="Customer_Photo_Order_${escapeHTML(order.order_id)}.png" style="font-size: 9px; color: #ffffff; font-weight: 800; border: none; background: #041e42; padding: 2px 6px; border-radius: 4px; cursor: pointer;" title="Download customer uploaded photo">📥 Download Photo</button>
                 </div>
               ` : ''}
               ${item.price ? `<span style="font-size: 10px; color: var(--text-muted); font-weight: 600;">₹${item.price.toLocaleString('en-IN')}</span>` : ''}
@@ -172,7 +172,7 @@ function renderOrders(ordersList, force = false) {
             <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 800; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; line-height: 1.4; word-break: break-word;" title="Order SKUs to Print">
               🏷️ ${escapeHTML(skusCommaSeparated)}
             </div>
-            <button type="button" onclick="navigator.clipboard.writeText('${escapeHTML(skusCommaSeparated).replace(/'/g, "\\'")}'); showToast('📋 Copied SKUs: ${escapeHTML(skusCommaSeparated).replace(/'/g, "\\'")}');" style="font-size: 9.5px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 2px 6px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Copy all SKUs to clipboard">
+            <button type="button" class="btn-copy-order-sku" data-sku="${escapeHTML(skusCommaSeparated)}" style="font-size: 9.5px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; padding: 2px 6px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Copy all SKUs to clipboard">
               📋 Copy SKU
             </button>
           ` : `
@@ -598,3 +598,32 @@ window.downloadCustomPhoto = function(photoUrl, filename) {
     window.open(photoUrl, '_blank');
   }
 };
+
+// Secure Event Delegation for Orders Table (prevents inline onclick DOM XSS)
+if (ordersListBody) {
+  ordersListBody.addEventListener('click', (e) => {
+    const copyBtn = e.target.closest('.btn-copy-order-sku');
+    if (copyBtn) {
+      const sku = copyBtn.getAttribute('data-sku') || '';
+      if (sku) {
+        navigator.clipboard.writeText(sku).then(() => {
+          showToast(`📋 Copied SKUs: ${sku}`);
+        }).catch(() => {
+          showToast(`📋 Copied SKUs: ${sku}`);
+        });
+      }
+      return;
+    }
+
+    const dlBtn = e.target.closest('.btn-download-order-photo');
+    if (dlBtn) {
+      const photo = dlBtn.getAttribute('data-photo') || '';
+      const fname = dlBtn.getAttribute('data-filename') || 'Customer_Photo.png';
+      if (photo && window.downloadCustomPhoto) {
+        window.downloadCustomPhoto(photo, fname);
+      }
+      return;
+    }
+  });
+}
+

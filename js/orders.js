@@ -54,6 +54,45 @@ function stopOrdersAutoRefresh() {
   }
 }
 
+// Helper to extract all applied offers for an order (Handles 1 or multiple offers)
+function getOrderOffers(order) {
+  const offers = [];
+
+  // 1. Explicit applied_offers array on order
+  if (Array.isArray(order.applied_offers)) {
+    order.applied_offers.forEach(o => {
+      if (o && typeof o === 'string' && !offers.includes(o.trim())) {
+        offers.push(o.trim());
+      }
+    });
+  }
+
+  // 2. Item-level offers or free items
+  if (Array.isArray(order.items)) {
+    order.items.forEach(it => {
+      const off = (it.offer_applied || '').trim();
+      if (off && !offers.includes(off)) {
+        offers.push(off);
+      } else if ((it.is_free || it.price === 0) && !offers.some(o => o.toLowerCase().includes('free') || o.toLowerCase().includes('pack'))) {
+        offers.push('Buy 1 Get 2 Free (Pack Offer)');
+      }
+    });
+  }
+
+  // 3. Free Delivery offer
+  if (order.delivery_charge === 0 && (order.grandTotal || order.grand_total || 0) >= 299 && !offers.some(o => o.toLowerCase().includes('shipping') || o.toLowerCase().includes('delivery'))) {
+    offers.push('Free Delivery');
+  }
+
+  // 4. Prepaid Savings offer (avoided COD fee)
+  const isPrepaid = order.payment_method && !order.payment_method.toLowerCase().includes('cash') && !order.payment_method.toLowerCase().includes('cod');
+  if (isPrepaid && !offers.some(o => o.toLowerCase().includes('prepaid'))) {
+    offers.push('Prepaid Savings');
+  }
+
+  return offers;
+}
+
 // Render orders list table safely without screen vibration or losing input focus
 function renderOrders(ordersList, force = false) {
   const currentHash = JSON.stringify(ordersList || []);
@@ -115,11 +154,18 @@ function renderOrders(ordersList, force = false) {
     }
 
     const itemsHtml = order.items && order.items.length > 0
-      ? order.items.map(item => `
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; background: #ffffff; padding: 6px 8px; border-radius: 8px; border: 1px solid #cbd5e1;">
+      ? order.items.map(item => {
+          const isFreeItem = item.is_free || item.price === 0;
+          return `
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; background: #ffffff; padding: 6px 8px; border-radius: 8px; border: 1px solid ${isFreeItem ? '#a7f3d0' : '#cbd5e1'};">
             ${item.thumbnail ? `<img src="${getImageUrl(item.thumbnail)}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;" alt="">` : ''}
             <div style="display: flex; flex-direction: column; gap: 2px;">
               <span style="font-weight: 700; color: var(--text-main); font-size: 11.5px; line-height: 1.2;" title="${escapeHTML(item.title)}">${escapeHTML(item.title)}</span>
+              ${isFreeItem ? `
+                <span style="font-size: 9px; font-weight: 800; color: #047857; background: #d1fae5; border: 1px solid #6ee7b7; padding: 1px 5px; border-radius: 4px; display: inline-block; width: fit-content; margin-top: 1px;">
+                  🎁 FREE ITEM ${item.offer_applied ? `(${escapeHTML(item.offer_applied)})` : ''}
+                </span>
+              ` : ''}
               ${(item.sku || item.SKU) ? `<span style="font-family: monospace; font-size: 9.5px; font-weight: 800; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 1px 5px; border-radius: 4px; display: inline-block; width: fit-content; margin-top: 1px;">🏷️ SKU: ${escapeHTML(item.sku || item.SKU)}</span>` : ''}
               ${item.selected_size ? `<span style="font-size: 9.5px; color: #0284c7; font-weight: 800;">📐 Size: ${escapeHTML(item.selected_size)}</span>` : ''}
               ${item.custom_photo ? `
@@ -128,11 +174,44 @@ function renderOrders(ordersList, force = false) {
                   <button type="button" class="btn-download-order-photo" data-photo="${escapeHTML(item.custom_photo)}" data-filename="Customer_Photo_Order_${escapeHTML(order.order_id)}.png" style="font-size: 9px; color: #ffffff; font-weight: 800; border: none; background: #041e42; padding: 2px 6px; border-radius: 4px; cursor: pointer;" title="Download customer uploaded photo">📥 Download Photo</button>
                 </div>
               ` : ''}
-              ${item.price ? `<span style="font-size: 10px; color: var(--text-muted); font-weight: 600;">₹${item.price.toLocaleString('en-IN')}</span>` : ''}
+              <div style="display: flex; align-items: center; gap: 6px;">
+                ${isFreeItem ? `
+                  <span style="font-size: 10px; color: #94a3b8; text-decoration: line-through;">₹${(item.original_price || item.price || 0).toLocaleString('en-IN')}</span>
+                  <span style="font-size: 10px; color: #047857; font-weight: 800;">₹0 (FREE)</span>
+                ` : `
+                  <span style="font-size: 10px; color: var(--text-muted); font-weight: 600;">₹${item.price.toLocaleString('en-IN')}</span>
+                `}
+              </div>
             </div>
           </div>
-        `).join('')
+        `;
+      }).join('')
       : '<span style="font-size: 10px; color: var(--text-muted); font-style: italic;">No items specified</span>';
+
+    const appliedOffers = getOrderOffers(order);
+    const offersHtml = appliedOffers.length > 0
+      ? appliedOffers.map(off => {
+          let badgeStyle = 'background: #fef3c7; color: #92400e; border: 1px solid #fde68a;';
+          let icon = '🏷️';
+          const lower = off.toLowerCase();
+          if (lower.includes('free') || lower.includes('get') || lower.includes('buy') || lower.includes('pack')) {
+            badgeStyle = 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;';
+            icon = '🔥';
+          } else if (lower.includes('shipping') || lower.includes('delivery')) {
+            badgeStyle = 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;';
+            icon = '🚚';
+          } else if (lower.includes('prepaid') || lower.includes('upi')) {
+            badgeStyle = 'background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe;';
+            icon = '⚡';
+          }
+          return `
+            <div style="display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; padding: 2.5px 7px; border-radius: 6px; line-height: 1.3; margin-bottom: 3px; ${badgeStyle}">
+              <span>${icon}</span>
+              <span>${escapeHTML(off)}</span>
+            </div>
+          `;
+        }).join('')
+      : '<span style="font-size: 10px; color: var(--text-muted); font-style: italic;">No Offer</span>';
 
     const existingTrackingId = order.tracking_id || '';
     const cleanPhone = (order.phone || '').replace(/[^0-9]/g, '');
@@ -183,6 +262,11 @@ function renderOrders(ordersList, force = false) {
       <td>
         <div style="max-width: 220px; max-height: 100px; overflow-y: auto;">
           ${itemsHtml}
+        </div>
+      </td>
+      <td>
+        <div style="display: flex; flex-direction: column; gap: 2px; min-width: 130px; max-width: 170px;">
+          ${offersHtml}
         </div>
       </td>
       <td style="white-space: nowrap;">${escapeHTML(order.phone)}</td>
@@ -402,6 +486,19 @@ function openInvoice(orderId) {
     };
   }
 
+  // Extract and show applied offers in invoice
+  const invOffers = getOrderOffers(order);
+  const invOffersBanner = document.getElementById('inv-offers-banner');
+  const invOffersText = document.getElementById('inv-offers-text');
+  if (invOffersBanner && invOffersText) {
+    if (invOffers.length > 0) {
+      invOffersText.innerText = invOffers.join('  •  ');
+      invOffersBanner.style.display = 'flex';
+    } else {
+      invOffersBanner.style.display = 'none';
+    }
+  }
+
   const itemsBody = document.getElementById('invoice-items-body');
   itemsBody.innerHTML = '';
 
@@ -410,7 +507,8 @@ function openInvoice(orderId) {
 
   order.items.forEach(item => {
     const row = document.createElement('tr');
-    const rate = item.price;
+    const isFree = item.is_free || item.price === 0;
+    const rate = isFree ? 0 : item.price;
     const qty = 1;
     const amount = qty * rate;
     itemsSubtotal += amount;
@@ -419,12 +517,13 @@ function openInvoice(orderId) {
       <td class="text-center">${slNo++}</td>
       <td style="font-weight: 700; color: #111111;">
         ${escapeHTML(item.title)}
+        ${isFree ? `<div style="font-size: 9.5px; color: #047857; font-weight: 800; margin-top: 2px;">🎁 FREE ITEM ${item.offer_applied ? `(${escapeHTML(item.offer_applied)})` : ''}</div>` : ''}
         ${(item.sku || item.SKU) ? `<div style="font-family: monospace; font-size: 10px; color: #0369a1; font-weight: 700; margin-top: 2px;">SKU: ${escapeHTML(item.sku || item.SKU)}</div>` : ''}
         ${item.selected_size ? `<div style="font-size: 10px; color: #64748b; font-weight: 600;">Size: ${escapeHTML(item.selected_size)}</div>` : ''}
       </td>
-      <td class="text-right">₹${rate.toLocaleString('en-IN')}</td>
+      <td class="text-right">${isFree ? '<span style="color: #047857; font-weight: 800;">FREE</span>' : `₹${rate.toLocaleString('en-IN')}`}</td>
       <td class="text-center">${qty}</td>
-      <td class="text-right">₹${amount.toLocaleString('en-IN')}</td>
+      <td class="text-right">${isFree ? '<span style="color: #047857; font-weight: 800;">₹0</span>' : `₹${amount.toLocaleString('en-IN')}`}</td>
     `;
     itemsBody.appendChild(row);
   });
@@ -497,8 +596,8 @@ function handleExportOrdersExcel() {
   }
 
   const headers = [
-    "Order ID", "Date", "Customer Name", "SKU Codes", "Phone", "Email",
-    "Shipping Address", "Items Summary", "Grand Total (₹)",
+    "Order ID", "Date", "Customer Name", "SKU Codes", "Ordered Items", "Offers Applied", "Phone", "Email",
+    "Shipping Address", "Grand Total (₹)",
     "Payment Method", "Payment Status", "Order Status", "Tracking ID / AWB"
   ];
 
@@ -515,20 +614,24 @@ function handleExportOrdersExcel() {
       ? o.sku_summary.trim()
       : (skuList.length > 0 ? skuList.join(', ') : (o.SKU || o.sku || ''));
 
-    const itemsSummary = (o.items || []).map(it => `${it.title}${(it.sku || it.SKU) ? ` [SKU: ${it.sku || it.SKU}]` : ''} (x${it.quantity || 1})`).join(' | ');
+    const itemsSummary = (o.items || []).map(it => `${it.title}${(it.sku || it.SKU) ? ` [SKU: ${it.sku || it.SKU}]` : ''}${it.is_free ? ' [FREE ITEM]' : ''} (x${it.quantity || 1})`).join(' | ');
     const formattedDate = o.created_at
       ? new Date(o.created_at).toLocaleString('en-IN')
       : (o.date || '');
+
+    const appliedOffers = getOrderOffers(o);
+    const offersText = appliedOffers.length > 0 ? appliedOffers.join('; ') : 'None';
 
     rows.push([
       o.order_id || '',
       formattedDate,
       o.name || 'Guest',
       skusCommaSeparated,
+      itemsSummary,
+      offersText,
       o.phone || '',
       o.email || '',
       o.address || '',
-      itemsSummary,
       o.grandTotal || o.grand_total || 0,
       o.payment_method || 'Online',
       o.payment_status || 'pending',

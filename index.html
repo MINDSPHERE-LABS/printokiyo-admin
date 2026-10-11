@@ -214,6 +214,7 @@
                 <th>Customer</th>
                 <th style="min-width: 130px;">SKU Code(s)</th>
                 <th>Ordered Items</th>
+                <th style="min-width: 140px;">Offers Applied</th>
                 <th>Mobile</th>
                 <th>Address</th>
                 <th>Payment Method</th>
@@ -780,12 +781,17 @@
           <div><strong>Invoice Date:</strong> <span id="inv-invoice-date">01/01/2026</span></div>
         </div>
 
-        <div id="inv-sku-banner" style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 8px 14px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div id="inv-sku-banner" style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 8px 14px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 11px; font-weight: 800; color: #0369a1; text-transform: uppercase;">🏷️ Print SKUs:</span>
             <span id="inv-skus-text" style="font-family: monospace; font-size: 12px; font-weight: 800; color: #0284c7;">MWM-001</span>
           </div>
           <button type="button" id="btn-copy-inv-skus" style="font-size: 10px; font-weight: 700; background: #0284c7; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer;">📋 Copy SKUs</button>
+        </div>
+
+        <div id="inv-offers-banner" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 8px 14px; border-radius: 8px; margin-bottom: 16px; align-items: center; gap: 8px;">
+          <span style="font-size: 11px; font-weight: 800; color: #065f46; text-transform: uppercase;">🔥 Applied Offers:</span>
+          <span id="inv-offers-text" style="font-size: 11px; font-weight: 800; color: #047857;">None</span>
         </div>
 
         <table class="invoice-table">

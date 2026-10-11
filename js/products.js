@@ -219,6 +219,7 @@ function populateCategoryDropdown(selectedVal = '') {
   const splitPosterCats = [
     "Supercar Split Posters",
     "Anime Split Posters",
+    "Meme/Funny Split Posters",
     "Superhero Split Posters",
     "Superbike Split Posters",
     "Cricket Split Posters",
@@ -230,6 +231,7 @@ function populateCategoryDropdown(selectedVal = '') {
   const singlePosterCats = [
     "Supercar Single Poster",
     "Anime Single Poster",
+    "Meme/Funny Single Poster",
     "Superhero Single Poster",
     "Superbike Single Poster",
     "Cricket Single Poster",

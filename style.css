@@ -1,4 +1,4 @@
-/* Custom style for MakeWithMojo Admin Management Console */
+/* Custom style for PrintOkiyo Admin Management Console */
 
 :root {
   --primary: #111111;
@@ -977,7 +977,7 @@ input:checked + .slider:before {
 
 .invoice-meta-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   padding: 10px 14px;
   border: 1px solid #dddddd;

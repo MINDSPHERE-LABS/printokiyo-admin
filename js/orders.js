@@ -367,10 +367,17 @@ function openInvoice(orderId) {
   document.getElementById('inv-shipping-address').innerText = order.address;
   document.getElementById('inv-shipping-phone').innerText = order.phone;
 
-  document.getElementById('inv-order-id').innerText = order.order_id;
-  document.getElementById('inv-order-date').innerText = formattedDate;
-  document.getElementById('inv-invoice-id').innerText = order.order_id;
-  document.getElementById('inv-invoice-date').innerText = formattedDate;
+  const invOrderIdEl = document.getElementById('inv-order-id');
+  if (invOrderIdEl) invOrderIdEl.innerText = order.order_id;
+
+  const invOrderDateEl = document.getElementById('inv-order-date');
+  if (invOrderDateEl) invOrderDateEl.innerText = formattedDate;
+
+  const invInvoiceIdEl = document.getElementById('inv-invoice-id');
+  if (invInvoiceIdEl) invInvoiceIdEl.innerText = order.order_id;
+
+  const invInvoiceDateEl = document.getElementById('inv-invoice-date');
+  if (invInvoiceDateEl) invInvoiceDateEl.innerText = formattedDate;
 
   // Extract all SKUs for invoice banner
   const invSkuList = [];

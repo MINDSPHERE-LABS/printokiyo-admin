@@ -197,6 +197,11 @@
               <div class="search-box">
                 <input type="text" id="order-search" placeholder="Search by Order ID, Customer Name, or Phone...">
               </div>
+              <select id="filter-prepared-status" style="padding: 7px 12px; font-size: 11px; font-weight: 700; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); cursor: pointer; color: var(--text-main);">
+                <option value="all">All Orders</option>
+                <option value="unprepared">⚠️ Pending Placing (Unprepared)</option>
+                <option value="prepared">✅ Prepared / Placed (Don't Touch)</option>
+              </select>
               <button id="btn-export-excel" type="button" style="padding: 8px 14px; font-size: 11px; font-weight: 800; background: #10b981; border: none; border-radius: 8px; color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 <span>📥 Export Orders (Excel / CSV)</span>
@@ -209,6 +214,7 @@
           <table class="orders-table">
             <thead>
               <tr>
+                <th style="width: 75px; text-align: center;" title="Check to mark order placed / prepared (Don't Touch)">Prepared</th>
                 <th>Order ID</th>
                 <th>Date</th>
                 <th>Customer</th>

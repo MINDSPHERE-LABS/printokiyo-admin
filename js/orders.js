@@ -25,11 +25,7 @@ async function loadOrders(silent = false) {
     const activeEl = document.activeElement;
     const isUserEditing = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT');
     if (!isUserEditing) {
-      if (orderSearchInput && orderSearchInput.value.trim()) {
-        handleOrderSearch({ target: orderSearchInput });
-      } else {
-        renderOrders(orders);
-      }
+      applyOrdersFilterAndSearch();
     }
   } catch (err) {
     if (!silent) {
@@ -113,7 +109,7 @@ function renderOrders(ordersList, force = false) {
   if (!ordersList || ordersList.length === 0) {
     ordersListBody.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align: center; padding: 30px; font-weight: 600; color: var(--text-muted);">
+        <td colspan="14" style="text-align: center; padding: 30px; font-weight: 600; color: var(--text-muted);">
           No orders found.
         </td>
       </tr>
@@ -128,7 +124,11 @@ function renderOrders(ordersList, force = false) {
       ? (new Date().getTime() - new Date(order.created_at).getTime()) < (12 * 3600 * 1000)
       : (index === 0);
 
-    if (isNewOrder) {
+    const isPrepared = !!order.is_prepared;
+
+    if (isPrepared) {
+      tr.classList.add('order-row-prepared');
+    } else if (isNewOrder) {
       tr.classList.add('new-order-row');
     }
 
@@ -234,10 +234,31 @@ function renderOrders(ordersList, force = false) {
       : (skuList.length > 0 ? skuList.join(', ') : (order.SKU || order.sku || ''));
 
     tr.innerHTML = `
+      <td style="text-align: center; vertical-align: middle;">
+        <label style="cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; gap: 3px;" title="Check to mark as PREPARED (Prevents duplicate product placing)">
+          <input 
+            type="checkbox" 
+            class="order-prepared-checkbox" 
+            data-id="${escapeHTML(order.order_id)}" 
+            ${isPrepared ? 'checked' : ''} 
+            style="width: 17px; height: 17px; accent-color: #10b981; cursor: pointer;"
+          >
+          <span style="font-size: 8px; font-weight: 800; color: ${isPrepared ? '#059669' : '#94a3b8'}; text-transform: uppercase; letter-spacing: 0.3px;">
+            ${isPrepared ? 'DONE' : 'PENDING'}
+          </span>
+        </label>
+      </td>
       <td>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="font-weight: 700; color: var(--primary);">${escapeHTML(order.order_id)}</span>
-          ${isNewOrder ? '<span class="new-badge">NEW</span>' : ''}
+        <div style="display: flex; flex-direction: column; gap: 3px; align-items: flex-start;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-weight: 700; color: var(--primary);">${escapeHTML(order.order_id)}</span>
+            ${isNewOrder && !isPrepared ? '<span class="new-badge">NEW</span>' : ''}
+          </div>
+          ${isPrepared ? `
+            <span class="prepared-lock-badge" title="This order has been prepared / placed. Do not touch or duplicate!">
+              🔒 PREPARED (DON'T TOUCH)
+            </span>
+          ` : ''}
         </div>
       </td>
       <td style="white-space: nowrap;">${formattedDate}</td>
@@ -329,6 +350,14 @@ function renderOrders(ordersList, force = false) {
       await handleUpdateOrderStatus(order.order_id, currentStatusVal, trackingId, 'Express Delivery', true);
     });
 
+    const prepCheckbox = tr.querySelector('.order-prepared-checkbox');
+    if (prepCheckbox) {
+      prepCheckbox.addEventListener('change', async (e) => {
+        const isChecked = e.target.checked;
+        await handleToggleOrderPrepared(order.order_id, isChecked);
+      });
+    }
+
     tr.querySelector('.btn-view-invoice').addEventListener('click', () => {
       openInvoice(order.order_id);
     });
@@ -384,13 +413,61 @@ async function handleUpdateOrderStatus(orderId, newStatus, trackingId = null, co
   }
 }
 
-// Search/Filter orders on search input
-function handleOrderSearch(e) {
-  const query = e.target.value.toLowerCase().trim();
-  if (!query) {
-    renderOrders(orders);
-  } else {
-    const filtered = orders.filter(o => 
+async function handleToggleOrderPrepared(orderId, isPrepared) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/orders/${orderId}/toggle-prepared`, {
+      method: 'PUT',
+      headers: getAdminHeaders(),
+      body: JSON.stringify({ is_prepared: isPrepared })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update prepared status");
+    }
+
+    const data = await res.json();
+    const updatedOrder = data.order || {};
+
+    // Update in local cache
+    const target = orders.find(o => o.order_id === orderId);
+    if (target) {
+      target.is_prepared = isPrepared;
+      target.prepared_at = updatedOrder.prepared_at || (isPrepared ? new Date().toISOString() : null);
+    }
+
+    if (isPrepared) {
+      showToast(`🔒 Order #${orderId} marked as PREPARED (DON'T TOUCH)!`);
+    } else {
+      showToast(`🔓 Order #${orderId} unmarked as prepared.`);
+    }
+
+    applyOrdersFilterAndSearch();
+  } catch (err) {
+    console.error("Order prepared toggle failed:", err);
+    showToast(`Error: ${err.message}`);
+    loadOrders(false);
+  }
+}
+
+// Search and filter orders by search query and prepared status
+function applyOrdersFilterAndSearch() {
+  const query = (orderSearchInput ? orderSearchInput.value : '').toLowerCase().trim();
+  const filterSelect = document.getElementById('filter-prepared-status');
+  const preparedFilter = filterSelect ? filterSelect.value : 'all';
+
+  let filtered = orders;
+
+  // Filter by prepared status
+  if (preparedFilter === 'unprepared') {
+    filtered = filtered.filter(o => !o.is_prepared);
+  } else if (preparedFilter === 'prepared') {
+    filtered = filtered.filter(o => !!o.is_prepared);
+  }
+
+  // Filter by text search
+  if (query) {
+    filtered = filtered.filter(o => 
       (o.order_id && o.order_id.toLowerCase().includes(query)) ||
       (o.name && o.name.toLowerCase().includes(query)) ||
       (o.phone && o.phone.toLowerCase().includes(query)) ||
@@ -404,8 +481,14 @@ function handleOrderSearch(e) {
         (item.SKU && item.SKU.toLowerCase().includes(query))
       ))
     );
-    renderOrders(filtered);
   }
+
+  renderOrders(filtered, true);
+}
+
+// Search/Filter orders on search input
+function handleOrderSearch(e) {
+  applyOrdersFilterAndSearch();
 }
 
 function numberToWords(num) {
@@ -596,7 +679,7 @@ function handleExportOrdersExcel() {
   }
 
   const headers = [
-    "Order ID", "Date", "Customer Name", "SKU Codes", "Ordered Items", "Offers Applied", "Phone", "Email",
+    "Prepared (Don't Touch)", "Order ID", "Date", "Customer Name", "SKU Codes", "Ordered Items", "Offers Applied", "Phone", "Email",
     "Shipping Address", "Grand Total (₹)",
     "Payment Method", "Payment Status", "Order Status", "Tracking ID / AWB"
   ];
@@ -621,8 +704,10 @@ function handleExportOrdersExcel() {
 
     const appliedOffers = getOrderOffers(o);
     const offersText = appliedOffers.length > 0 ? appliedOffers.join('; ') : 'None';
+    const prepStatusText = o.is_prepared ? "PREPARED / PLACED" : "PENDING";
 
     rows.push([
+      prepStatusText,
       o.order_id || '',
       formattedDate,
       o.name || 'Guest',

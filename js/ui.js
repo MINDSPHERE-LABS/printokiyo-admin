@@ -200,6 +200,16 @@ function setupEventListeners() {
   if (orderSearchInput) {
     orderSearchInput.addEventListener('input', handleOrderSearch);
   }
+  const filterPreparedStatus = document.getElementById('filter-prepared-status');
+  if (filterPreparedStatus) {
+    filterPreparedStatus.addEventListener('change', () => {
+      if (typeof applyOrdersFilterAndSearch === 'function') {
+        applyOrdersFilterAndSearch();
+      } else if (typeof handleOrderSearch === 'function') {
+        handleOrderSearch();
+      }
+    });
+  }
   if (userSearchInput) {
     userSearchInput.addEventListener('input', handleUserSearch);
   }

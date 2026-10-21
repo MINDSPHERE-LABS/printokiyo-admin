@@ -196,7 +196,7 @@ async function handleImageUpload(e) {
 // Fetch all products from Backend API
 async function loadProducts() {
   try {
-    const res = await fetch(`${API_BASE_URL}/products`);
+    const res = await fetch(`${API_BASE_URL}/products?limit=500`);
     if (!res.ok) throw new Error("Could not load products");
     products = await res.json();
     populateCategoryDropdown();
